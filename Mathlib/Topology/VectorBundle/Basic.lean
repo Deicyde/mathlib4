@@ -483,6 +483,20 @@ theorem comp_continuousLinearEquivAt_eq_coord_change (e e' : Trivialization F (�
 
 end Bundle.Trivialization
 
+/-- The zero section of a vector bundle is continuous. -/
+theorem continuous_zeroSection (R : Type*) [NontriviallyNormedField R]
+    [∀ x, Module R (E x)] [NormedSpace R F] [VectorBundle R F E] :
+    Continuous (zeroSection F E) := by
+  rw [continuous_iff_continuousAt]; intro x₀
+  rw [FiberBundle.continuousAt_totalSpace]
+  exact ⟨continuousAt_id, tendsto_const_nhds.congr' (by
+    filter_upwards [(trivializationAt F E x₀).open_baseSet.mem_nhds
+      (mem_baseSet_trivializationAt F E x₀)] with x hx
+    simp [zeroSection_proj,
+      (trivializationAt F E x₀).zeroSection (R := R) hx,
+      (trivializationAt F E x₀).zeroSection (R := R)
+        (mem_baseSet_trivializationAt F E x₀)])⟩
+
 variable (F E) [TopologicalSpace (TotalSpace F E)] [FiberBundle F E] [VectorBundle R F E] in
 /-- A continuous linear equivalence between the fiber at `b` and the model fiber,
 induced by the preferred trivialisation at each `b`. -/
