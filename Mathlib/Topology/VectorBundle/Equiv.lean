@@ -698,8 +698,7 @@ lemma trivializationCoord_inverse_eventuallyEq
   set Φ_equiv := Equiv.ofBijective Φ hbij
   have hx₁ := mem_baseSet_trivializationAt F₁ E₁ x
   have hx₂ := mem_baseSet_trivializationAt F₂ E₂ (baseMap x)
-  have he₂_source : (⟨baseMap x, w⟩ : TotalSpace F₂ E₂) ∈ e₂.source :=
-    e₂.mem_source.mpr hx₂
+  have he₂_source : (⟨baseMap x, w⟩ : TotalSpace F₂ E₂) ∈ e₂.source := e₂.mem_source.mpr hx₂
   have hproj := proj_symm_ofBijective baseMap hcompat hbij
   have hU : ((baseMap '' e₁.baseSet) ∩ e₂.baseSet) ×ˢ (Set.univ : Set F₂) ∈
       nhds (e₂ ⟨baseMap x, w⟩) := by
