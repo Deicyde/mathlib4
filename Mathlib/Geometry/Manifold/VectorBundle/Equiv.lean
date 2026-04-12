@@ -12,14 +12,25 @@ public import Mathlib.Geometry.Manifold.VectorBundle.Basic
 /-!
 # Smooth Vector Bundle Homomorphisms and Equivalences
 
-The `C^n` variants of vector bundle homomorphisms and equivalences require smoothness
-of the total space maps. See `Mathlib.Topology.VectorBundle.Equiv` for the continuous
-(topological) versions.
+This file defines bundled `C^n` fiberwise-linear maps between smooth vector bundles
+over possibly different base manifolds. These are the smooth analogs of
+`VectorBundleHom` and `VectorBundleEquiv` from `Mathlib.Topology.VectorBundle.Equiv`.
+
+A `ContMDiffVectorBundleHom` bundles a `C^n` map of total spaces with a family of
+linear maps between fibers. A `ContMDiffVectorBundleEquiv` strengthens this to a
+`Diffeomorph` of total spaces with fiberwise linear equivalences.
 
 ## Main Definitions
 
-* `ContMDiffVectorBundleHom` : a `C^n` vector bundle homomorphism.
-* `ContMDiffVectorBundleEquiv` : a `C^n` vector bundle equivalence.
+* `ContMDiffVectorBundleHom 𝕜 IB n F₁ E₁ F₂ E₂` : a `C^n` fiberwise-linear map
+  between vector bundles, covering a base map `baseMap : B₁ → B₂`.
+* `ContMDiffVectorBundleEquiv 𝕜 IB n F₁ E₁ F₂ E₂` : a `Diffeomorph` of total spaces
+  with fiberwise linear equivalences, covering a bijection of base manifolds.
+* `ContMDiffVectorBundleEquiv.ofFiberwiseLinearEquiv` : construct an equivalence from
+  a family of fiberwise linear equivalences, given smoothness of the induced
+  total-space maps.
+* `ContMDiffVectorBundleHom.toContMDiffVectorBundleEquiv` : promote a bijective `C^n`
+  homomorphism to an equivalence, given that the base map is a diffeomorphism.
 
 ## Tags
 
@@ -123,16 +134,14 @@ instance : ContinuousMapClass
     (TotalSpace F₁ E₁) (TotalSpace F₂ E₂) where
   map_continuous e := e.toDiffeomorph.continuous
 
-/-- The underlying `ContinuousMap` of a
-`ContMDiffVectorBundleEquiv`. -/
+/-- The underlying `ContinuousMap`. -/
 @[simps]
 def toContinuousMap
     (e : ContMDiffVectorBundleEquiv 𝕜 IB n F₁ E₁ F₂ E₂) :
     C(TotalSpace F₁ E₁, TotalSpace F₂ E₂) :=
   ⟨e, e.toDiffeomorph.continuous⟩
 
-/-- The base map equals the projection of the diffeomorphism
-on the zero section. -/
+/-- The base map equals the projection of the diffeomorphism on the zero section. -/
 theorem baseMap_eq
     (e : ContMDiffVectorBundleEquiv 𝕜 IB n F₁ E₁ F₂ E₂)
     (x : B₁) :
@@ -384,16 +393,14 @@ instance : ContinuousMapClass
     (TotalSpace F₁ E₁) (TotalSpace F₂ E₂) where
   map_continuous f := f.contMDiff_toFun.continuous
 
-/-- The underlying `ContinuousMap` of a
-`ContMDiffVectorBundleHom`. -/
+/-- The underlying `ContinuousMap`. -/
 @[simps]
 def toContinuousMap
     (f : ContMDiffVectorBundleHom 𝕜 IB n F₁ E₁ F₂ E₂) :
     C(TotalSpace F₁ E₁, TotalSpace F₂ E₂) :=
   ⟨f, f.contMDiff_toFun.continuous⟩
 
-/-- The base map equals the projection of the total space map
-on the zero section. -/
+/-- The base map equals the projection of the total space map on the zero section. -/
 theorem baseMap_eq
     (f : ContMDiffVectorBundleHom 𝕜 IB n F₁ E₁ F₂ E₂)
     (x : B₁) :
