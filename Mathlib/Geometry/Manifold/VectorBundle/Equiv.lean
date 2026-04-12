@@ -32,6 +32,10 @@ linear maps between fibers. A `ContMDiffVectorBundleEquiv` strengthens this to a
 * `ContMDiffVectorBundleHom.toContMDiffVectorBundleEquiv` : promote a bijective `C^n`
   homomorphism to an equivalence, given that the base map is a diffeomorphism.
 
+## References
+
+* [J. M. Lee, *Introduction to Smooth Manifolds*][lee2012] p. 261
+
 ## Tags
 
 vector bundle, homomorphism, equivalence, isomorphism, diffeomorphism
