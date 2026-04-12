@@ -66,10 +66,14 @@ structure ContMDiffVectorBundleEquiv
     (E₂ : B₂ → Type*) [∀ x, AddCommMonoid (E₂ x)] [∀ x, Module 𝕜 (E₂ x)]
     [TopologicalSpace (TotalSpace F₂ E₂)] [∀ x, TopologicalSpace (E₂ x)]
     [FiberBundle F₂ E₂] [VectorBundle 𝕜 F₂ E₂] where
+  /-- The base map covered by this bundle equivalence. -/
   baseMap : B₁ → B₂
+  /-- The underlying `C^n` diffeomorphism between total spaces. -/
   toDiffeomorph : Diffeomorph (IB.prod 𝓘(𝕜, F₁)) (IB.prod 𝓘(𝕜, F₂))
     (TotalSpace F₁ E₁) (TotalSpace F₂ E₂) n
+  /-- A family of linear equivalences between the fibers. -/
   fiberLinearEquiv : ∀ x : B₁, E₁ x ≃ₗ[𝕜] E₂ (baseMap x)
+  /-- The diffeomorphism acts fiberwise via `fiberLinearEquiv`. -/
   fiber_compat : ∀ (x : B₁) (v : E₁ x),
     toDiffeomorph ⟨x, v⟩ = ⟨baseMap x, fiberLinearEquiv x v⟩
 
@@ -109,6 +113,7 @@ def mk'
   toDiffeomorph := Φ
   fiberLinearEquiv := φ
   fiber_compat := hcompat
+
 
 @[ext]
 theorem ext (A B : ContMDiffVectorBundleEquiv 𝕜 IB n F₁ E₁ F₂ E₂)
@@ -325,10 +330,16 @@ structure ContMDiffVectorBundleHom
     (E₂ : B₂ → Type*) [∀ x, AddCommMonoid (E₂ x)] [∀ x, Module 𝕜 (E₂ x)]
     [TopologicalSpace (TotalSpace F₂ E₂)] [∀ x, TopologicalSpace (E₂ x)]
     [FiberBundle F₂ E₂] [VectorBundle 𝕜 F₂ E₂] where
+  /-- The base map covered by this bundle homomorphism. -/
   baseMap : B₁ → B₂
+  /-- The underlying `C^n` map between total spaces. -/
   toFun : TotalSpace F₁ E₁ → TotalSpace F₂ E₂
-  contMDiff_toFun : ContMDiff (IB.prod 𝓘(𝕜, F₁)) (IB.prod 𝓘(𝕜, F₂)) n toFun
+  /-- The total space map is `C^n`. -/
+  contMDiff_toFun :
+    ContMDiff (IB.prod 𝓘(𝕜, F₁)) (IB.prod 𝓘(𝕜, F₂)) n toFun
+  /-- A family of linear maps between the fibers. -/
   fiberLinearMap : ∀ x : B₁, E₁ x →ₗ[𝕜] E₂ (baseMap x)
+  /-- The map acts fiberwise via `fiberLinearMap`. -/
   fiber_compat : ∀ (x : B₁) (v : E₁ x),
     toFun ⟨x, v⟩ = ⟨baseMap x, fiberLinearMap x v⟩
 
@@ -572,11 +583,9 @@ variable {𝕜 : Type*} [NontriviallyNormedField 𝕜]
   [TopologicalSpace (TotalSpace F₂ E₂)] [∀ x, TopologicalSpace (E₂ x)]
   [FiberBundle F₂ E₂] [VectorBundle 𝕜 F₂ E₂]
 
-/-- Package a fiberwise linear map family into a `ContMDiffVectorBundleHom` covering an
-arbitrary base map `f : B → B₂`, given a smoothness proof for the induced total-space map.
-Intended entry point for callers who can discharge smoothness directly via operations on
-structured bundles (e.g. `Bundle.continuousMultilinearMap`), bypassing the
-section-characterization lemma. -/
+/-- Given a family of linear maps `φ x : E₁ x →ₗ[𝕜] E₂ (f x)` covering a base map
+`f : B → B₂`, and a smoothness proof for the induced total-space map, construct a
+`ContMDiffVectorBundleHom`. -/
 def ContMDiffVectorBundleHom.ofFiberwiseLinearMap
     {B₂ : Type*} [TopologicalSpace B₂] [ChartedSpace HB B₂]
     {E₂ : B₂ → Type*} [∀ x, AddCommMonoid (E₂ x)] [∀ x, Module 𝕜 (E₂ x)]
@@ -593,46 +602,47 @@ def ContMDiffVectorBundleHom.ofFiberwiseLinearMap
   fiberLinearMap := φ
   fiber_compat _ _ := rfl
 
-/-- Assemble a `ContMDiffVectorBundleEquiv` covering the identity from two mutually-inverse
-`ContMDiffVectorBundleHom`s. Unlike `ContMDiffVectorBundleHom.toContMDiffVectorBundleEquivId`,
-both directions of smoothness are supplied as input, so no finite-dimensional or
-complete-space assumptions are needed on the fibers or base field. The base map of `Ψ` is
-forced to be the identity by the mutual-inverse hypotheses, so it need not be supplied. -/
+/-- Assemble a `ContMDiffVectorBundleEquiv` from two
+mutually-inverse `ContMDiffVectorBundleHom`s. -/
 noncomputable def ContMDiffVectorBundleEquiv.ofMutualInverseHoms
     (Φ : ContMDiffVectorBundleHom 𝕜 IB n F₁ E₁ F₂ E₂)
     (Ψ : ContMDiffVectorBundleHom 𝕜 IB n F₂ E₂ F₁ E₁)
-    (hΦ : Φ.baseMap = _root_.id)
     (hΨΦ : ∀ p, Ψ.toFun (Φ.toFun p) = p)
     (hΦΨ : ∀ p, Φ.toFun (Ψ.toFun p) = p) :
-    ContMDiffVectorBundleEquiv 𝕜 IB n F₁ E₁ F₂ E₂ :=
-  have hΨ : Ψ.baseMap = _root_.id := by
-    funext y
-    have h := congrArg TotalSpace.proj (hΦΨ ⟨y, 0⟩)
-    rwa [Φ.proj_eq, Ψ.proj_eq, hΦ] at h
-  match Φ, Ψ, hΦ, hΨ, hΨΦ, hΦΨ with
-  | ⟨_, toFunΦ, hcΦ, φ, compatΦ⟩, ⟨_, toFunΨ, hcΨ, ψ, compatΨ⟩,
-    rfl, rfl, hΨΦ, hΦΨ =>
-    { baseMap := _root_.id
-      toDiffeomorph :=
-        { toEquiv := ⟨toFunΦ, toFunΨ, hΨΦ, hΦΨ⟩
-          contMDiff_toFun := hcΦ
-          contMDiff_invFun := hcΨ }
-      fiberLinearEquiv := fun x =>
-        LinearEquiv.ofLinear (φ x) (ψ x)
-          (LinearMap.ext fun v => by
-            have h := hΦΨ ⟨x, v⟩
-            simp only [compatΦ, compatΨ] at h
-            exact eq_of_heq (TotalSpace.mk.inj h).2)
-          (LinearMap.ext fun v => by
-            have h := hΨΦ ⟨x, v⟩
-            simp only [compatΦ, compatΨ] at h
-            exact eq_of_heq (TotalSpace.mk.inj h).2)
-      fiber_compat := compatΦ }
+    ContMDiffVectorBundleEquiv 𝕜 IB n F₁ E₁ F₂ E₂ where
+  baseMap := Φ.baseMap
+  toDiffeomorph :=
+    { toEquiv := ⟨Φ.toFun, Ψ.toFun, hΨΦ, hΦΨ⟩
+      contMDiff_toFun := Φ.contMDiff_toFun
+      contMDiff_invFun := Ψ.contMDiff_toFun }
+  fiberLinearEquiv := fun x =>
+    have hbij : Function.Bijective Φ.toFun :=
+      ⟨Function.LeftInverse.injective hΨΦ,
+       Function.RightInverse.surjective hΦΨ⟩
+    have hbase_left :
+        ∀ x, Ψ.baseMap (Φ.baseMap x) = x := by
+      intro x
+      have h := congrArg TotalSpace.proj (hΨΦ ⟨x, 0⟩)
+      simp only [Ψ.proj_eq, Φ.proj_eq] at h
+      exact h
+    have hbase_inj : Function.Injective Φ.baseMap :=
+      Function.LeftInverse.injective hbase_left
+    LinearEquiv.ofBijective (Φ.fiberLinearMap x) ⟨
+      fun v w hvw => TotalSpace.mk_inj.mp
+        (hbij.1 (by rw [Φ.fiber_compat x v,
+          Φ.fiber_compat x w, hvw])),
+      fun w => by
+        obtain ⟨⟨y, v⟩, hv⟩ := hbij.2
+          (⟨Φ.baseMap x, w⟩ : TotalSpace F₂ E₂)
+        rw [Φ.fiber_compat y v] at hv
+        have hy := hbase_inj (congrArg TotalSpace.proj hv)
+        subst hy
+        exact ⟨v, TotalSpace.mk_inj.mp hv⟩⟩
+  fiber_compat := Φ.fiber_compat
 
-/-- Construct a `ContMDiffVectorBundleEquiv` covering the identity from a fiberwise linear
-equivalence `φ : ∀ x, E₁ x ≃ₗ[𝕜] E₂ x`, together with smoothness proofs for the
-total-space maps induced by `φ` and `φ.symm`. This is the main user-facing constructor for
-equivalences built from pointwise linear-algebraic data. -/
+/-- Given a family of linear equivalences `φ x : E₁ x ≃ₗ[𝕜] E₂ x`
+whose induced total-space maps are `C^n` in both directions,
+construct a `ContMDiffVectorBundleEquiv` covering the identity. -/
 noncomputable def ContMDiffVectorBundleEquiv.ofFiberwiseLinearEquiv
     (φ : ∀ x : B, E₁ x ≃ₗ[𝕜] E₂ x)
     (h_smooth : ContMDiff (IB.prod 𝓘(𝕜, F₁)) (IB.prod 𝓘(𝕜, F₂)) n
@@ -848,6 +858,8 @@ noncomputable def ContMDiffVectorBundleHom.toContMDiffVectorBundleEquiv
       fiber_compat := hcompat }
 
 end ToContMDiffVectorBundleEquiv
+
+/-! ### Identity base map specialization -/
 
 section ToContMDiffVectorBundleEquivId
 

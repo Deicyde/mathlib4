@@ -465,6 +465,43 @@ theorem toVectorBundleHom_id :
       = VectorBundleHom.id :=
   VectorBundleHom.ext _ _ rfl
 
+/-- Assemble a `VectorBundleEquiv` from two mutually-inverse
+`VectorBundleHom`s over possibly different base spaces. -/
+noncomputable def ofMutualInverseHoms
+    (Φ : VectorBundleHom 𝕜 F₁ E₁ F₂ E₂)
+    (Ψ : VectorBundleHom 𝕜 F₂ E₂ F₁ E₁)
+    (hΨΦ : ∀ p, Ψ.toFun (Φ.toFun p) = p)
+    (hΦΨ : ∀ p, Φ.toFun (Ψ.toFun p) = p) :
+    VectorBundleEquiv 𝕜 F₁ E₁ F₂ E₂ where
+  baseMap := Φ.baseMap
+  toHomeomorph :=
+    { toEquiv := ⟨Φ.toFun, Ψ.toFun, hΨΦ, hΦΨ⟩
+      continuous_toFun := Φ.continuous_toFun
+      continuous_invFun := Ψ.continuous_toFun }
+  fiberLinearEquiv := fun x =>
+    have hbij : Function.Bijective Φ.toFun :=
+      ⟨Function.LeftInverse.injective hΨΦ,
+       Function.RightInverse.surjective hΦΨ⟩
+    have hbase_left : ∀ x, Ψ.baseMap (Φ.baseMap x) = x := by
+      intro x
+      have h := congrArg TotalSpace.proj (hΨΦ ⟨x, 0⟩)
+      simp only [Ψ.proj_eq, Φ.proj_eq] at h
+      exact h
+    have hbase_inj : Function.Injective Φ.baseMap :=
+      Function.LeftInverse.injective hbase_left
+    LinearEquiv.ofBijective (Φ.fiberLinearMap x) ⟨
+      fun v w hvw => TotalSpace.mk_inj.mp
+        (hbij.1 (by rw [Φ.fiber_compat x v,
+          Φ.fiber_compat x w, hvw])),
+      fun w => by
+        obtain ⟨⟨y, v⟩, hv⟩ := hbij.2
+          (⟨Φ.baseMap x, w⟩ : TotalSpace F₂ E₂)
+        rw [Φ.fiber_compat y v] at hv
+        have hy := hbase_inj (congrArg TotalSpace.proj hv)
+        subst hy
+        exact ⟨v, TotalSpace.mk_inj.mp hv⟩⟩
+  fiber_compat := Φ.fiber_compat
+
 end VectorBundleEquiv
 
 /-! ## Building equivalences from fiberwise data -/
@@ -480,9 +517,9 @@ variable {𝕜 : Type*} [NontriviallyNormedField 𝕜]
   {E₂ : B → Type*} [∀ x, AddCommMonoid (E₂ x)] [∀ x, Module 𝕜 (E₂ x)]
   [TopologicalSpace (TotalSpace F₂ E₂)]
 
-/-- Package a fiberwise linear map family into a `VectorBundleHom`
-covering an arbitrary base map, given a continuity proof for the
-induced total-space map. -/
+/-- Given a family of linear maps `φ x : E₁ x →ₗ[𝕜] E₂ (f x)`
+covering a base map `f : B → B₂`, and a continuity proof for the
+induced total-space map, construct a `VectorBundleHom`. -/
 def VectorBundleHom.ofFiberwiseLinearMap
     {B₂ : Type*} [TopologicalSpace B₂]
     {E₂ : B₂ → Type*} [∀ x, AddCommMonoid (E₂ x)]
@@ -500,44 +537,9 @@ def VectorBundleHom.ofFiberwiseLinearMap
   fiberLinearMap := φ
   fiber_compat _ _ := rfl
 
-/-- Assemble a `VectorBundleEquiv` covering the identity from
-two mutually-inverse `VectorBundleHom`s. Both directions of
-continuity are supplied as input, so no finite-dimensional or
-complete-space assumptions are needed. -/
-noncomputable def VectorBundleEquiv.ofMutualInverseHoms
-    (Φ : VectorBundleHom 𝕜 F₁ E₁ F₂ E₂)
-    (Ψ : VectorBundleHom 𝕜 F₂ E₂ F₁ E₁)
-    (hΦ : Φ.baseMap = _root_.id)
-    (hΨΦ : ∀ p, Ψ.toFun (Φ.toFun p) = p)
-    (hΦΨ : ∀ p, Φ.toFun (Ψ.toFun p) = p) :
-    VectorBundleEquiv 𝕜 F₁ E₁ F₂ E₂ :=
-  have hΨ : Ψ.baseMap = _root_.id := by
-    funext y
-    have h := congrArg TotalSpace.proj (hΦΨ ⟨y, 0⟩)
-    rwa [Φ.proj_eq, Ψ.proj_eq, hΦ] at h
-  match Φ, Ψ, hΦ, hΨ, hΨΦ, hΦΨ with
-  | ⟨_, toFunΦ, hcΦ, φ, compatΦ⟩, ⟨_, toFunΨ, hcΨ, ψ, compatΨ⟩,
-    rfl, rfl, hΨΦ, hΦΨ =>
-    { baseMap := _root_.id
-      toHomeomorph :=
-        { toEquiv := ⟨toFunΦ, toFunΨ, hΨΦ, hΦΨ⟩
-          continuous_toFun := hcΦ
-          continuous_invFun := hcΨ }
-      fiberLinearEquiv := fun x =>
-        LinearEquiv.ofLinear (φ x) (ψ x)
-          (LinearMap.ext fun v => by
-            have h := hΦΨ ⟨x, v⟩
-            simp only [compatΦ, compatΨ] at h
-            exact eq_of_heq (TotalSpace.mk.inj h).2)
-          (LinearMap.ext fun v => by
-            have h := hΨΦ ⟨x, v⟩
-            simp only [compatΦ, compatΨ] at h
-            exact eq_of_heq (TotalSpace.mk.inj h).2)
-      fiber_compat := compatΦ }
-
-/-- Construct a `VectorBundleEquiv` covering the identity from
-a fiberwise linear equivalence, together with continuity proofs
-for the total-space maps induced by `φ` and `φ.symm`. -/
+/-- Given a family of linear equivalences `φ x : E₁ x ≃ₗ[𝕜] E₂ x`
+whose induced total-space maps are continuous in both directions,
+construct a `VectorBundleEquiv` covering the identity. -/
 noncomputable def VectorBundleEquiv.ofFiberwiseLinearEquiv
     (φ : ∀ x : B, E₁ x ≃ₗ[𝕜] E₂ x)
     (h_cont : Continuous
