@@ -12,23 +12,35 @@ public import Mathlib.Topology.VectorBundle.Basic
 /-!
 # Vector Bundle Homomorphisms and Equivalences
 
-A vector bundle homomorphism between vector bundles `E₁` over `B₁` and `E₂` over `B₂` is a
-continuous map between total spaces that sends fibers linearly into fibers, covering
-some base map `baseMap : B₁ → B₂`.
+This file defines bundled continuous, fiberwise-linear maps between vector bundles
+over possibly different base spaces.
 
-A vector bundle equivalence strengthens this to a homeomorphism with fiberwise linear
-equivalences.
+A `VectorBundleHom` bundles a continuous map of total spaces with a family of linear
+maps between fibers, covering a base map `baseMap : B₁ → B₂`. A `VectorBundleEquiv`
+strengthens this to a homeomorphism of total spaces with fiberwise linear equivalences.
 
-The base map is stored as a field rather than a parameter, since it is determined by
-the total space map. The lemma `baseMap_eq` recovers it as
-`fun x => (toFun ⟨x, 0⟩).proj`.
+## Design notes
+
+The base map `baseMap : B₁ → B₂` is stored as a field, even though it is determined
+by the total space map (recovered by `baseMap_eq`). This is because `fiberLinearMap`
+has type `∀ x, E₁ x →ₗ[𝕜] E₂ (baseMap x)`, which would become
+`∀ x, E₁ x →ₗ[𝕜] E₂ ((toFun ⟨x, 0⟩).proj)` without the field — an unwieldy
+dependent type. The constructor `mk'` derives the base map automatically for users
+who prefer not to supply it.
 
 ## Main Definitions
 
-* `VectorBundleHom` : a continuous, fiberwise-linear homomorphism between vector bundles.
-* `VectorBundleEquiv` : a vector bundle isomorphism.
+* `VectorBundleHom 𝕜 F₁ E₁ F₂ E₂` : a continuous, fiberwise-linear map between
+  vector bundles, covering a base map `baseMap : B₁ → B₂`.
+* `VectorBundleEquiv 𝕜 F₁ E₁ F₂ E₂` : a homeomorphism of total spaces with fiberwise
+  linear equivalences, covering a bijection of base spaces.
+* `VectorBundleEquiv.ofFiberwiseLinearEquiv` : construct an equivalence from a family
+  of fiberwise linear equivalences, given continuity of the induced total-space maps.
+* `VectorBundleHom.toVectorBundleEquiv` : promote a bijective homomorphism to an
+  equivalence, given that the base map is a homeomorphism.
 
 ## Tags
+
 vector bundle, homomorphism, equivalence, isomorphism
 -/
 
