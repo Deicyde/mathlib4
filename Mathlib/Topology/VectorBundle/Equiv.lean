@@ -647,6 +647,34 @@ lemma trivializationCoord_isInvertible
         𝕜 (baseMap q) hq₂).toLinearEquiv).bijective
   exact ⟨(LinearEquiv.ofBijective _ hbij_lm).toContinuousLinearEquiv, by ext; rfl⟩
 
+omit [CompleteSpace 𝕜] [NormedAddCommGroup F₁]
+  [NormedSpace 𝕜 F₁] [FiniteDimensional 𝕜 F₁]
+  [TopologicalSpace (TotalSpace F₁ E₁)]
+  [∀ x, TopologicalSpace (E₁ x)]
+  [FiberBundle F₁ E₁] [VectorBundle 𝕜 F₁ E₁]
+  [NormedAddCommGroup F₂] [NormedSpace 𝕜 F₂]
+  [TopologicalSpace (TotalSpace F₂ E₂)]
+  [∀ x, TopologicalSpace (E₂ x)]
+  [FiberBundle F₂ E₂] [VectorBundle 𝕜 F₂ E₂] in
+/-- If `Φ` is a fiberwise-compatible bijection covering a
+homeomorphism `baseMap`, the projection of `Φ⁻¹` equals
+`baseMap.symm` applied to the projection. -/
+lemma proj_symm_ofBijective
+    {Φ : TotalSpace F₁ E₁ → TotalSpace F₂ E₂}
+    (baseMap : B₁ ≃ₜ B₂)
+    {φ : ∀ x : B₁, E₁ x →ₗ[𝕜] E₂ (baseMap x)}
+    (hcompat : ∀ x v, Φ ⟨x, v⟩ = ⟨baseMap x, φ x v⟩)
+    (hbij : Function.Bijective Φ)
+    (p : TotalSpace F₂ E₂) :
+    ((Equiv.ofBijective Φ hbij).symm p).proj =
+      baseMap.symm p.proj := by
+  set Φ_equiv := Equiv.ofBijective Φ hbij
+  have h1 : Φ (Φ_equiv.symm p) = p :=
+    Φ_equiv.apply_symm_apply p
+  rw [hcompat] at h1
+  rw [← congrArg TotalSpace.proj h1,
+    baseMap.symm_apply_apply]
+
 /-- On a neighborhood of `e₂ ⟨baseMap x, w⟩`, inverting
 `trivializationCoord baseMap φ x` pointwise computes the second coordinate of
 `e₁ ∘ Φ⁻¹ ∘ e₂⁻¹`. The base map is required to be a homeomorphism so that points
@@ -672,12 +700,7 @@ lemma trivializationCoord_inverse_eventuallyEq
   have hx₂ := mem_baseSet_trivializationAt F₂ E₂ (baseMap x)
   have he₂_source : (⟨baseMap x, w⟩ : TotalSpace F₂ E₂) ∈ e₂.source :=
     e₂.mem_source.mpr hx₂
-  have hproj : ∀ p, (Φ_equiv.symm p).proj = baseMap.symm p.proj := fun p => by
-    have h1 : Φ (Φ_equiv.symm p) = p := Φ_equiv.apply_symm_apply p
-    rw [hcompat (Φ_equiv.symm p).proj (Φ_equiv.symm p).snd] at h1
-    have h := congrArg TotalSpace.proj h1
-    simp only at h
-    rw [← h, baseMap.symm_apply_apply]
+  have hproj := proj_symm_ofBijective baseMap hcompat hbij
   have hU : ((baseMap '' e₁.baseSet) ∩ e₂.baseSet) ×ˢ (Set.univ : Set F₂) ∈
       nhds (e₂ ⟨baseMap x, w⟩) := by
     refine IsOpen.mem_nhds ?_ ?_
@@ -777,6 +800,56 @@ lemma continuousAt_clm_of_pointwise
     (LinearMap.ker_eq_bot.mpr evalBasis_inj)).isEmbedding.continuousAt_iff]
   exact continuousAt_pi.mpr fun i => h (bF₁ i)
 
+/-- The trivialization coordinate `trivializationCoord baseMap φ x`
+is continuous at `x` when `Φ` is continuous and acts fiberwise
+via `φ`. -/
+lemma continuousAt_trivializationCoord
+    {Φ : TotalSpace F₁ E₁ → TotalSpace F₂ E₂}
+    (hΦ_cont : Continuous Φ)
+    {baseMap : B₁ → B₂}
+    (hbaseMap_cont : Continuous baseMap)
+    {φ : ∀ x : B₁, E₁ x →ₗ[𝕜] E₂ (baseMap x)}
+    (hcompat : ∀ x v,
+      Φ ⟨x, v⟩ = ⟨baseMap x, φ x v⟩)
+    (x : B₁) :
+    ContinuousAt (trivializationCoord (F₁ := F₁)
+      (F₂ := F₂) baseMap φ x) x := by
+  set e₁ := trivializationAt F₁ E₁ x
+  set e₂ := trivializationAt F₂ E₂ (baseMap x)
+  have hx₁ := mem_baseSet_trivializationAt F₁ E₁ x
+  have hx₂ :=
+    mem_baseSet_trivializationAt F₂ E₂ (baseMap x)
+  have hΦ_proj : ∀ p, (Φ p).proj = baseMap p.proj :=
+    fun ⟨_, _⟩ => by simp [hcompat]
+  apply continuousAt_clm_of_pointwise; intro v
+  suffices h : ContinuousAt (fun q =>
+      (e₂ (Φ (e₁.toOpenPartialHomeomorph.symm
+        (q, v)))).2) x by
+    exact h.congr (Filter.eventually_of_mem
+      (IsOpen.mem_nhds (e₁.open_baseSet.inter
+        (hbaseMap_cont.isOpen_preimage _
+          e₂.open_baseSet)) ⟨hx₁, hx₂⟩)
+      fun q ⟨hq₁, hq₂⟩ =>
+        (trivializationCoord_apply
+          hcompat x q hq₁ hq₂ v).symm)
+  have he₁_tgt : (x, v) ∈ e₁.target := by
+    rw [e₁.target_eq]; exact ⟨hx₁, Set.mem_univ _⟩
+  set oph := e₁.toOpenPartialHomeomorph
+  have he₁_symm : ContinuousAt
+      (fun q => oph.symm (q, v)) x := by
+    refine ContinuousAt.comp ?_
+      (continuousAt_id.prodMk continuousAt_const)
+    exact oph.continuousOn_symm.continuousAt
+      (oph.open_target.mem_nhds he₁_tgt)
+  have hcomp : ContinuousAt (fun q =>
+      Φ (oph.symm (q, v))) x := by
+    exact hΦ_cont.continuousAt.comp he₁_symm
+  exact ((e₂.continuousOn.continuousAt
+    (e₂.open_source.mem_nhds (by
+      rw [e₂.mem_source, hΦ_proj,
+        e₁.proj_symm_apply he₁_tgt]
+      exact hx₂))).comp hcomp).snd
+
 /-- The inverse of a fiberwise-linear, fiberwise-bijective continuous bijection between
 vector bundles over different bases is continuous, provided the base map is a
 homeomorphism. The proof is local: through trivializations at a point, the transition map
@@ -793,23 +866,20 @@ lemma continuous_symm_of_fiberBijective'
     (hφ_bij : ∀ x, Function.Bijective (φ x)) :
     Continuous (Equiv.ofBijective Φ hbij).symm := by
   set Φ_equiv := Equiv.ofBijective Φ hbij
-  have hproj : ∀ p, (Φ_equiv.symm p).proj =
-      baseMap.symm p.proj := fun p => by
-    have h1 : Φ (Φ_equiv.symm p) = p :=
-      Φ_equiv.apply_symm_apply p
-    rw [hcompat] at h1
-    rw [← congrArg TotalSpace.proj h1,
-      baseMap.symm_apply_apply]
+  have hproj := proj_symm_ofBijective baseMap hcompat hbij
   rw [continuous_iff_continuousAt]
   rintro ⟨y, w⟩
   obtain ⟨x, rfl⟩ : ∃ x, baseMap x = y :=
     ⟨baseMap.symm y, baseMap.apply_symm_apply y⟩
   rw [FiberBundle.continuousAt_totalSpace]
   refine ⟨?_, ?_⟩
-  · simp only [hproj]
+  · simp only [show ∀ p, (Φ_equiv.symm p).proj =
+        baseMap.symm p.proj from hproj]
     exact (baseMap.symm.continuous.comp
       (FiberBundle.continuous_proj F₂ E₂)).continuousAt
-  · simp only [hproj, Homeomorph.symm_apply_apply]
+  · simp only [show ∀ p, (Φ_equiv.symm p).proj =
+        baseMap.symm p.proj from hproj,
+      Homeomorph.symm_apply_apply]
     set e₁ := trivializationAt F₁ E₁ x
     set e₂ := trivializationAt F₂ E₂ (baseMap x)
     have hx₁ := mem_baseSet_trivializationAt F₁ E₁ x
@@ -820,49 +890,9 @@ lemma continuous_symm_of_fiberBijective'
       e₂.mem_source.mpr hx₂
     set A : B₁ → (F₁ →L[𝕜] F₂) :=
       trivializationCoord baseMap φ x with hA_def
-    have hΦ_proj : ∀ p, (Φ p).proj = baseMap p.proj :=
-      fun ⟨_, _⟩ => by simp [hcompat]
-    have hA_cont : ContinuousAt A x := by
-      apply continuousAt_clm_of_pointwise
-      intro v
-      suffices h : ContinuousAt
-          (fun q => (e₂ (Φ
-            (e₁.toOpenPartialHomeomorph.symm (q, v)))).2) x by
-        refine h.congr (Filter.eventually_of_mem
-          (IsOpen.mem_nhds (e₁.open_baseSet.inter
-            (baseMap.continuous.isOpen_preimage _
-              e₂.open_baseSet)) ⟨hx₁, ?_⟩) ?_)
-        · exact hx₂
-        · intro q ⟨hq₁, hq₂⟩
-          exact (trivializationCoord_apply
-            hcompat x q hq₁ hq₂ v).symm
-      have he₁_tgt : (x, v) ∈ e₁.target := by
-        rw [e₁.target_eq]; exact ⟨hx₁, Set.mem_univ _⟩
-      set oph := e₁.toOpenPartialHomeomorph
-      have he₁_symm_cont : ContinuousAt
-          (fun q => oph.symm (q, v)) x := by
-        refine ContinuousAt.comp ?_
-          (ContinuousAt.prodMk continuousAt_id
-            continuousAt_const)
-        exact oph.continuousOn_symm.continuousAt
-          (oph.open_target.mem_nhds he₁_tgt)
-      have hpΦ :
-          Φ (e₁.toOpenPartialHomeomorph.symm (x, v)) ∈
-            e₂.source := by
-        rw [e₂.mem_source, hΦ_proj,
-          e₁.proj_symm_apply he₁_tgt]
-        exact hx₂
-      have he₂_at := e₂.continuousOn.continuousAt
-        (e₂.open_source.mem_nhds hpΦ)
-      have hcomp1 : ContinuousAt (fun q =>
-          Φ (e₁.toOpenPartialHomeomorph.symm (q, v))) x := by
-        exact ContinuousAt.comp hΦ_cont.continuousAt
-          he₁_symm_cont
-      have hcomp2 : ContinuousAt (fun q =>
-          e₂ (Φ (e₁.toOpenPartialHomeomorph.symm (q, v))))
-          x := by
-        exact ContinuousAt.comp he₂_at hcomp1
-      exact hcomp2.snd
+    have hA_cont : ContinuousAt A x :=
+      continuousAt_trivializationCoord hΦ_cont
+        baseMap.continuous hcompat x
     haveI : CompleteSpace F₁ :=
       FiniteDimensional.complete 𝕜 F₁
     have hA_inv_at_x :
