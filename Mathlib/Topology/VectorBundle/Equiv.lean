@@ -39,6 +39,10 @@ who prefer not to supply it.
 * `VectorBundleHom.toVectorBundleEquiv` : promote a bijective homomorphism to an
   equivalence, given that the base map is a homeomorphism.
 
+## References
+
+* [J. M. Lee, *Introduction to Smooth Manifolds*][lee2012] p. 261
+
 ## Tags
 
 vector bundle, homomorphism, equivalence, isomorphism
