@@ -504,6 +504,18 @@ induced by the preferred trivialisation at each `b`. -/
 noncomputable def VectorBundle.continuousLinearEquivAt (b : B) : E b ≃L[R] F :=
   (trivializationAt F E b).continuousLinearEquivAt R b (FiberBundle.mem_baseSet_trivializationAt' b)
 
+/-- The zero section of a vector bundle is continuous on any set. -/
+theorem continuousOn_zeroSection (R : Type*) [NontriviallyNormedField R] [∀ x, Module R (E x)]
+    [NormedSpace R F] [VectorBundle R F E] (s : Set B) :
+    ContinuousOn (zeroSection F E) s :=
+  (continuous_zeroSection R).continuousOn
+
+/-- The zero section of a vector bundle is continuous at each point. -/
+theorem continuousAt_zeroSection (R : Type*) [NontriviallyNormedField R] [∀ x, Module R (E x)]
+    [NormedSpace R F] [VectorBundle R F E] (x : B) :
+    ContinuousAt (zeroSection F E) x :=
+  (continuous_zeroSection R).continuousAt
+
 /-! ### Constructing vector bundles -/
 
 variable (B F)
