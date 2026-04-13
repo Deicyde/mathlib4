@@ -604,7 +604,7 @@ lemma trivializationCoord_inverse_eventuallyEq {Φ : TotalSpace F₁ E₁ → To
           (e₂.proj_symm_apply (show (q', v) ∈ e₂.target from e₂.mem_target.mpr hq₂'))
           |>.trans (baseMap.apply_symm_apply q').symm)
     rw [trivializationCoord_apply hcompat x (baseMap.symm q') (hq ▸ hq₁) hq₂,
-        ← hp_proj, e₁.symm_proj_snd (e₁.mem_source.mpr (hp_proj ▸ hq ▸ hq₁)),
+        ← hp_proj, e₁.symm_apply_mk_proj (e₁.mem_source.mpr (hp_proj ▸ hq ▸ hq₁)),
         Equiv.ofBijective_apply_symm_apply Φ hbij _,
         congrArg Prod.snd (e₂.apply_symm_apply' hq₂')]
   exact (trivializationCoord_isInvertible (baseMap := baseMap) hφ_bij x

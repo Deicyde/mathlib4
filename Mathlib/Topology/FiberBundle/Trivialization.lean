@@ -437,11 +437,6 @@ theorem mk_proj_snd (ex : x ∈ e.source) : (proj x, (e x).2) = e x :=
 theorem mk_proj_snd' (ex : proj x ∈ e.baseSet) : (proj x, (e x).2) = e x :=
   Prod.ext (e.coe_fst' ex).symm rfl
 
-theorem symm_proj_snd (ex : x ∈ e.source) :
-    e.toOpenPartialHomeomorph.symm (proj x, (e x).2) = x := by
-  conv_rhs => rw [← e.toOpenPartialHomeomorph.left_inv ex]
-  exact congrArg e.toOpenPartialHomeomorph.symm (e.mk_proj_snd ex)
-
 theorem source_inter_preimage_target_inter (s : Set (B × F)) :
     e.source ∩ e ⁻¹' (e.target ∩ s) = e.source ∩ e ⁻¹' s :=
   e.toOpenPartialHomeomorph.source_inter_preimage_target_inter s
