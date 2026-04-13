@@ -596,9 +596,7 @@ theorem continuousOn_proj : ContinuousOn proj e.source :=
 inverse is continuous at any point in the target. -/
 theorem continuousAt_symm_prodMk_left {b : B} {v : F} (h : (b, v) ∈ e.target) :
     ContinuousAt (fun q => e.toOpenPartialHomeomorph.symm (q, v)) b :=
-  ContinuousAt.comp (f := fun q => (q, v))
-    (e.toOpenPartialHomeomorph.continuousOn_symm.continuousAt
-      (e.toOpenPartialHomeomorph.open_target.mem_nhds h))
+  ContinuousAt.comp (e.continuousOn_symm.continuousAt (e.open_target.mem_nhds h))
     (continuousAt_id.prodMk continuousAt_const)
 
 /-- Fixing the fiber coordinate and varying the base point in a trivialization
