@@ -5,7 +5,7 @@ Authors: Jack McCarthy
 -/
 module
 
-public import Mathlib.Topology.VectorBundle.Equiv
+public import Mathlib.Topology.VectorBundle.Morphism
 public import Mathlib.Geometry.Manifold.Diffeomorph
 public import Mathlib.Geometry.Manifold.VectorBundle.Basic
 
@@ -14,7 +14,7 @@ public import Mathlib.Geometry.Manifold.VectorBundle.Basic
 
 This file defines bundled `C^n` fiberwise-linear maps between smooth vector bundles
 over possibly different base manifolds. These are the smooth analogs of
-`VectorBundleHom` and `VectorBundleEquiv` from `Mathlib.Topology.VectorBundle.Equiv`.
+`VectorBundleHom` and `VectorBundleEquiv` from `Mathlib.Topology.VectorBundle.Morphism`.
 
 A `ContMDiffVectorBundleHom` bundles a `C^n` map of total spaces with a family of
 linear maps between fibers. A `ContMDiffVectorBundleEquiv` strengthens this to a
