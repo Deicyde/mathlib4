@@ -738,7 +738,7 @@ lemma contMDiffAt_trivializationCoord
     (e₂.open_source.mem_nhds hpΦ)).comp x
     (hΦ_smooth.contMDiffAt.comp x he₁_symm)).snd
 
-/-- `ContMDiff` analog of `continuous_symm_of_fiberBijective'`: the inverse of a
+/-- `ContMDiff` analog of `continuous_symm_of_fiberBijective`: the inverse of a
 fiberwise-linear, fiberwise-bijective `C^n` bijection between `C^n` vector bundles is `C^n`
 when the base map is a `Diffeomorph`. -/
 lemma contMDiff_symm_of_fiberBijective'
@@ -871,7 +871,7 @@ variable {𝕜 : Type*} [NontriviallyNormedField 𝕜] [CompleteSpace 𝕜]
   [FiberBundle F₂ E₂] [VectorBundle 𝕜 F₂ E₂]
   [ContMDiffVectorBundle n F₂ E₂ IB]
 
-/-- `ContMDiff` analog of `continuous_symm_of_fiberBijective`: the inverse of a
+/-- `ContMDiff` analog of `continuous_symm_of_fiberBijective_id`: the inverse of a
 fiberwise-linear, fiberwise-bijective `C^n` bijection between `C^n` vector bundles over the
 same base (with identity base map) is itself `C^n`. This is the special case of
 `contMDiff_symm_of_fiberBijective'` with `Diffeomorph.refl`. -/

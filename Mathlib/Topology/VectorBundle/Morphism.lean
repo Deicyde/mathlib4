@@ -237,7 +237,7 @@ theorem baseMap_bijective_of_bijective (hcompat : ∀ x v, Φ ⟨x, v⟩ = ⟨ba
 
 /-- If a fiberwise-linear bijection of total spaces covers a base map and acts as
 `⟨x, v⟩ ↦ ⟨baseMap x, φ x v⟩`, then each fiber map `φ x` is bijective. -/
-theorem fiberBijective_of_bijective' (hcompat : ∀ x v, Φ ⟨x, v⟩ = ⟨baseMap x, φ x v⟩)
+theorem fiberBijective_of_bijective (hcompat : ∀ x v, Φ ⟨x, v⟩ = ⟨baseMap x, φ x v⟩)
     (hbij : Function.Bijective Φ) (x : B₁) : Function.Bijective (φ x) :=
   ⟨fun v w hvw => TotalSpace.mk_inj.mp (hbij.1 (by rw [hcompat, hcompat, hvw])),
    fun w => by
@@ -345,6 +345,9 @@ def toVectorBundleHom (Φ : VectorBundleEquiv 𝕜 F₁ E₁ F₂ E₂) :
   fiberLinearMap x := (Φ.fiberLinearEquiv x).toLinearMap
   fiber_compat x v := Φ.fiber_compat x v
 
+instance : Coe (VectorBundleEquiv 𝕜 F₁ E₁ F₂ E₂) (VectorBundleHom 𝕜 F₁ E₁ F₂ E₂) :=
+  ⟨toVectorBundleHom⟩
+
 /-- The identity vector bundle equivalence. -/
 @[simps baseMap toHomeomorph fiberLinearEquiv]
 def refl : VectorBundleEquiv 𝕜 F₁ E₁ F₁ E₁ where
@@ -354,6 +357,7 @@ def refl : VectorBundleEquiv 𝕜 F₁ E₁ F₁ E₁ where
   fiber_compat _ _ := rfl
 
 /-- The inverse of a vector bundle equivalence. -/
+@[simps baseMap toHomeomorph]
 def symm (Φ : VectorBundleEquiv 𝕜 F₁ E₁ F₂ E₂) : VectorBundleEquiv 𝕜 F₂ E₂ F₁ E₁ where
   baseMap y := (Φ.toHomeomorph.symm ⟨y, 0⟩).proj
   toHomeomorph := Φ.toHomeomorph.symm
@@ -367,6 +371,7 @@ def symm (Φ : VectorBundleEquiv 𝕜 F₁ E₁ F₂ E₂) : VectorBundleEquiv �
     exact Φ.toHomeomorph.symm_apply_eq.mpr (key _ _)
 
 /-- Composition of vector bundle equivalences. -/
+@[simps baseMap toHomeomorph]
 def trans (Φ : VectorBundleEquiv 𝕜 F₁ E₁ F₂ E₂) (Ψ : VectorBundleEquiv 𝕜 F₂ E₂ F₃ E₃) :
     VectorBundleEquiv 𝕜 F₁ E₁ F₃ E₃ where
   baseMap := Ψ.baseMap ∘ Φ.baseMap
@@ -446,7 +451,7 @@ noncomputable def ofMutualInverseHoms
       continuous_invFun := Ψ.continuous_toFun }
   fiberLinearEquiv x :=
     LinearEquiv.ofBijective (Φ.fiberLinearMap x)
-      (fiberBijective_of_bijective' Φ.fiber_compat
+      (fiberBijective_of_bijective Φ.fiber_compat
         ⟨Function.LeftInverse.injective hΨΦ, Function.RightInverse.surjective hΦΨ⟩ x)
   fiber_compat := Φ.fiber_compat
 
@@ -648,12 +653,12 @@ lemma continuousAt_trivializationCoord {Φ : TotalSpace F₁ E₁ → TotalSpace
 
 /-- The inverse of a fiberwise-linear, fiberwise-bijective continuous bijection between
 vector bundles over different bases is continuous, provided the base map is a homeomorphism. -/
-lemma continuous_symm_of_fiberBijective' {Φ : TotalSpace F₁ E₁ → TotalSpace F₂ E₂}
+lemma continuous_symm_of_fiberBijective {Φ : TotalSpace F₁ E₁ → TotalSpace F₂ E₂}
     (hΦ_cont : Continuous Φ) (baseMap : B₁ ≃ₜ B₂) {φ : ∀ x : B₁, E₁ x →ₗ[𝕜] E₂ (baseMap x)}
     (hcompat : ∀ x v, Φ ⟨x, v⟩ = ⟨baseMap x, φ x v⟩) (hbij : Function.Bijective Φ) :
     Continuous (Equiv.ofBijective Φ hbij).symm := by
   set Φ_equiv := Equiv.ofBijective Φ hbij
-  have hφ_bij := fiberBijective_of_bijective' hcompat hbij
+  have hφ_bij := fiberBijective_of_bijective hcompat hbij
   have hproj (p : TotalSpace F₂ E₂) : (Φ_equiv.symm p).proj = baseMap.symm p.proj :=
     baseMap_injective_of_injective hcompat hbij.1
       ((baseMap_proj_symm_ofBijective hcompat hbij p).trans (baseMap.apply_symm_apply p.proj).symm)
@@ -698,10 +703,10 @@ noncomputable def VectorBundleHom.toVectorBundleEquiv (Φ : VectorBundleHom 𝕜
     VectorBundleEquiv 𝕜 F₁ E₁ F₂ E₂ :=
   match Φ, hbase, hbij with
   | ⟨_, Φ', hΦ_cont, φ, hcompat⟩, rfl, hbij =>
-    let hφ_bij := fiberBijective_of_bijective' hcompat hbij
+    let hφ_bij := fiberBijective_of_bijective hcompat hbij
     { baseMap := baseMap
       toHomeomorph := ⟨Equiv.ofBijective Φ' hbij, hΦ_cont,
-        continuous_symm_of_fiberBijective' hΦ_cont baseMap hcompat hbij⟩
+        continuous_symm_of_fiberBijective hΦ_cont baseMap hcompat hbij⟩
       fiberLinearEquiv := fun x =>
         LinearEquiv.ofBijective (φ x) (hφ_bij x)
       fiber_compat := hcompat }
@@ -723,13 +728,11 @@ variable {𝕜 : Type*} [NontriviallyNormedField 𝕜] [CompleteSpace 𝕜]
 
 /-- The inverse of a fiberwise-linear, fiberwise-bijective continuous bijection between
 vector bundles over the same base (with identity base map) is continuous. This is the
-special case of `continuous_symm_of_fiberBijective'` with `Homeomorph.refl B`. -/
-lemma continuous_symm_of_fiberBijective
-    {Φ : TotalSpace F₁ E₁ → TotalSpace F₂ E₂} (hΦ_cont : Continuous Φ)
-    {φ : ∀ x, E₁ x →ₗ[𝕜] E₂ x} (hcompat : ∀ x v, Φ ⟨x, v⟩ = ⟨x, φ x v⟩)
-    (hbij : Function.Bijective Φ) :
-    Continuous (Equiv.ofBijective Φ hbij).symm :=
-  continuous_symm_of_fiberBijective' hΦ_cont (Homeomorph.refl B) hcompat hbij
+special case of `continuous_symm_of_fiberBijective` with `Homeomorph.refl B`. -/
+lemma continuous_symm_of_fiberBijective_id {Φ : TotalSpace F₁ E₁ → TotalSpace F₂ E₂}
+    (hΦ_cont : Continuous Φ) {φ : ∀ x, E₁ x →ₗ[𝕜] E₂ x} (hcompat : ∀ x v, Φ ⟨x, v⟩ = ⟨x, φ x v⟩)
+    (hbij : Function.Bijective Φ) : Continuous (Equiv.ofBijective Φ hbij).symm :=
+  continuous_symm_of_fiberBijective hΦ_cont (Homeomorph.refl B) hcompat hbij
 
 /-- Special case of `VectorBundleHom.toVectorBundleEquiv` for the identity base map. -/
 noncomputable def VectorBundleHom.toVectorBundleEquivId (Φ : VectorBundleHom 𝕜 F₁ E₁ F₂ E₂)
