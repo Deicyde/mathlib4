@@ -42,7 +42,6 @@ variable {f : β → γ} {g : α → Part β}
 lemma Monotone.partMap (hg : Monotone g) : Monotone fun x ↦ (g x).map f := by
   simpa only [← bind_some_eq_map] using hg.partBind monotone_const
 
-set_option backward.simpa.using.reducibleClose false in
 lemma Antitone.partMap (hg : Antitone g) : Antitone fun x ↦ (g x).map f := by
   simpa only [← bind_some_eq_map] using hg.partBind antitone_const
 

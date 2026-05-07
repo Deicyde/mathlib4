@@ -65,7 +65,6 @@ lemma factorₐ_comp_liftAdicCompletionAux (m : ℕ) :
     ext
     simp
 
-set_option backward.simpa.using.reducibleClose false in
 @[simp]
 lemma factorₐ_comp_liftAdicCompletionAux_of_le {m n : ℕ} (hn : m ≤ n) :
     (Ideal.Quotient.factorₐ _ (Ideal.pow_le_pow_right hn)).comp (liftAdicCompletionAux I f n) =

@@ -317,7 +317,6 @@ theorem nextCoeff_C_eq_zero (c : R) : nextCoeff (C c) = 0 := by
   rw [nextCoeff]
   simp
 
-set_option backward.simpa.using.reducibleClose false in
 theorem nextCoeff_of_natDegree_pos (hp : 0 < p.natDegree) :
     nextCoeff p = p.coeff (p.natDegree - 1) := by
   rw [nextCoeff, if_neg]

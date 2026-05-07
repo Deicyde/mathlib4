@@ -442,7 +442,6 @@ section AddCommGroup
 
 variable [AddCommGroup E] [AddCommGroup F] [Module 𝕜 E] [Module 𝕜 F] {s t : Set E}
 
-set_option backward.simpa.using.reducibleClose false in
 @[simp]
 theorem convex_vadd (a : E) : Convex 𝕜 (a +ᵥ s) ↔ Convex 𝕜 s :=
   ⟨fun h ↦ by simpa using h.vadd (-a), fun h ↦ h.vadd _⟩
