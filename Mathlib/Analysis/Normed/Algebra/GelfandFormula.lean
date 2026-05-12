@@ -55,8 +55,8 @@ theorem hasDerivAt_resolvent_const_left {a : A} {k : 𝕜} (hk : k ∈ resolvent
   have H₁ : HasFDerivAt Ring.inverse _ (algebraMap 𝕜 A k - a) :=
     hasFDerivAt_ringInverse (𝕜 := 𝕜) hk.unit
   have H₂ : HasDerivAt (fun k => algebraMap 𝕜 A k - a) 1 k := by
-    simpa using (Algebra.linearMap 𝕜 A).hasDerivAt.sub_const a
-  simpa [resolvent, sq, hk.unit_spec, ← Ring.inverse_unit hk.unit] using H₁.comp_hasDerivAt k H₂
+    simpa using! (Algebra.linearMap 𝕜 A).hasDerivAt.sub_const a
+  simpa [resolvent, sq, hk.unit_spec, ← Ring.inverse_unit hk.unit] using! H₁.comp_hasDerivAt k H₂
 
 @[deprecated (since := "2026-03-26")]
 alias hasDerivAt_resolvent := hasDerivAt_resolvent_const_left
@@ -67,8 +67,8 @@ theorem hasFDerivAt_resolvent {a : A} {k : 𝕜} (hk : k ∈ resolventSet 𝕜 a
   have H₁ : HasFDerivAt Ring.inverse _ (algebraMap 𝕜 A k - a) :=
     hasFDerivAt_ringInverse (𝕜 := 𝕜) hk.unit
   have H₂ : HasFDerivAt (fun a => algebraMap 𝕜 A k - a) (- .id 𝕜 A) a := by
-    simpa using (hasFDerivAt_const _ a).sub (hasFDerivAt_id a)
-  simpa [resolvent_eq hk] using H₁.comp a H₂
+    simpa using! (hasFDerivAt_const _ a).sub (hasFDerivAt_id a)
+  simpa [resolvent_eq hk] using! H₁.comp a H₂
 
 end NonTriviallyNormedField
 
@@ -136,7 +136,7 @@ theorem pow_norm_pow_one_div_tendsto_nhds_spectralRadius (a : A) :
   convert pow_nnnorm_pow_one_div_tendsto_nhds_spectralRadius a using 1
   ext1
   rw [← ofReal_rpow_of_nonneg (norm_nonneg _) _, ← coe_nnnorm, coe_nnreal_eq]
-  exact one_div_nonneg.mpr (mod_cast zero_le _)
+  simp
 
 section Nontrivial
 

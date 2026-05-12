@@ -331,14 +331,14 @@ protected theorem sublist : Red L₁ L₂ → L₂ <+ L₁ :=
 theorem length_le (h : Red L₁ L₂) : L₂.length ≤ L₁.length :=
   h.sublist.length_le
 
-
-@[to_additive]
+@[to_additive (attr := deprecated "Should not be needed." (since := "2026-04-10"))]
 theorem sizeof_of_step : ∀ {L₁ L₂ : List (α × Bool)},
     Step L₁ L₂ → sizeOf L₂ < sizeOf L₁
   | _, _, @Step.not _ L1 L2 x b => by
     induction L1 with
     | nil =>
-      dsimp
+      -- This was just `dsimp` prior to https://github.com/leanprover/lean4/pull/13320
+      dsimp [sizeOf, _sizeOf_1]
       lia
     | cons hd tl ih =>
       dsimp
@@ -491,10 +491,12 @@ theorem quot_lift_mk (β : Type v) (f : List (α × Bool) → β)
     (H : ∀ L₁ L₂, Red.Step L₁ L₂ → f L₁ = f L₂) : Quot.lift f H (mk L) = f L :=
   rfl
 
-@[to_additive (attr := simp)]
+@[to_additive]
 theorem quot_liftOn_mk (β : Type v) (f : List (α × Bool) → β)
     (H : ∀ L₁ L₂, Red.Step L₁ L₂ → f L₁ = f L₂) : Quot.liftOn (mk L) f H = f L :=
   rfl
+
+attribute [simp] quot_liftOn_mk
 
 open scoped Relator in
 @[to_additive (attr := simp)]

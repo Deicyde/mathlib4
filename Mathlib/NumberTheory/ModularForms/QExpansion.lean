@@ -213,7 +213,6 @@ lemma qExpansionFormalMultilinearSeries_apply_norm (m : ℕ) :
     ← (ContinuousMultilinearMap.piFieldEquiv ℂ (Fin m) ℂ).symm.norm_map]
   simp
 
-set_option backward.isDefEq.respectTransparency false in
 lemma qExpansionFormalMultilinearSeries_radius (hh : 0 < h)
     (hfper : Periodic (f ∘ ofComplex) h) (hfhol : MDiff f) (hfbdd : IsBoundedAtImInfty f) :
     1 ≤ (qExpansionFormalMultilinearSeries h f).radius := by
@@ -232,7 +231,7 @@ private lemma hasSum_cuspFunction_of_hasSum_punctured {f : ℍ → ℂ} (hh : 0 
   have h1 := Periodic.im_invQParam_pos_of_norm_lt_one hh hq hq1
   let τ : ℍ := ⟨Periodic.invQParam h q, h1⟩
   have h2 := (Periodic.cuspFunction_eq_of_nonzero h (f ∘ ofComplex) hq1)
-  have : cuspFunction h f q = f τ := by simpa [UpperHalfPlane.ofComplex_apply_of_im_pos h1] using h2
+  have : cuspFunction h f q = f τ := by simpa [UpperHalfPlane.ofComplex_apply_of_im_pos h1] using! h2
   grind [hf τ, Periodic.qParam_right_inv]
 
 private lemma hasFPowerSeriesOnBall_update {f : ℍ → ℂ} (hh : 0 < h) {c : ℕ → ℂ}
@@ -289,7 +288,6 @@ lemma qExpansion_coeff_eq_circleIntegral {f : ℍ → ℂ} (hh : 0 < h)
   simp_rw [qExpansion, PowerSeries.coeff_mk, ← this, sub_zero, smul_eq_mul, one_div_mul_eq_div,
     div_eq_inv_mul]
 
-set_option backward.isDefEq.respectTransparency false in
 /--
 If `h` is a positive strict period of `f`, then the `q`-expansion coefficient can be expressed
 as an integral along a horizontal line in the upper half-plane from `t * I` to `h + t * I`, for
@@ -432,14 +430,14 @@ theorem cuspFunction_mul_zero {f g : ℂ → ℂ} (hfcts : ContinuousAt (Periodi
 lemma qExpansion_mul_coeff_zero {f g : ℍ → ℂ} (hfcts : ContinuousAt (cuspFunction h f) 0)
     (hgcts : ContinuousAt (cuspFunction h g) 0) :
     (qExpansion h (f * g)).coeff 0 = ((qExpansion h f).coeff 0) * (qExpansion h g).coeff 0 := by
-  simpa [qExpansion_coeff] using cuspFunction_mul_zero hfcts hgcts
+  simpa [qExpansion_coeff] using! cuspFunction_mul_zero hfcts hgcts
 
 lemma cuspFunction_mul {f g : ℍ → ℂ}
     (hfcts : ContinuousAt (cuspFunction h f) 0) (hgcts : ContinuousAt (cuspFunction h g) 0) :
     cuspFunction h (f * g) = cuspFunction h f * cuspFunction h g := by
   ext z
   by_cases H : z = 0
-  · simpa [H] using cuspFunction_mul_zero hfcts hgcts
+  · simpa [H] using! cuspFunction_mul_zero hfcts hgcts
   · simp [cuspFunction, Periodic.cuspFunction, H]
 
 lemma cuspFunction_smul {f : ℍ → ℂ} (hfcts : ContinuousAt (cuspFunction h f) 0) (a : ℂ) :
@@ -497,7 +495,7 @@ lemma qExpansion_sub {f g : ℍ → ℂ} (hf : AnalyticAt ℂ (cuspFunction h f)
 lemma qExpansion_zero (h) : qExpansion h 0 = 0 := by
   suffices cuspFunction h 0 = 0 by ext; simp [qExpansion_coeff, this]
   simpa [cuspFunction, Periodic.cuspFunction]
-    using (tendsto_const_nhds.mono_left nhdsWithin_le_nhds).limUnder_eq
+    using! (tendsto_const_nhds.mono_left nhdsWithin_le_nhds).limUnder_eq
 
 lemma qExpansion_eq_zero_iff {f : ℍ → ℂ} (hh : 0 < h)
     (hfper : Periodic (f ∘ ofComplex) h) (hfhol : MDiff f) (hfbdd : IsBoundedAtImInfty f) :
@@ -514,10 +512,10 @@ lemma qExpansion_one (h) : qExpansion h (1 : ℍ → ℂ) = 1 := by
   have h1 : cuspFunction h 1 = 1 := by
     ext q
     rcases eq_or_ne q 0 with rfl | hq
-    · simpa [cuspFunction, Periodic.cuspFunction] using tendsto_const_nhds.limUnder_eq
+    · simpa [cuspFunction, Periodic.cuspFunction] using! tendsto_const_nhds.limUnder_eq
     · simp [cuspFunction, Periodic.cuspFunction_eq_of_nonzero h _ hq]
   have h2 : iteratedDeriv m (1 : ℂ → ℂ) 0 = if m = 0 then 1 else 0 := by
-    simpa [ite_apply] using iteratedDeriv_const
+    simpa [ite_apply] using! iteratedDeriv_const
   simp +contextual [qExpansion_coeff, h1, h2]
 
 end UpperHalfPlane
@@ -613,7 +611,7 @@ lemma qExpansion_of_mul [Γ.HasDetPlusMinusOne] (hh : 0 < h)
     (hΓ : h ∈ Γ.strictPeriods) (a b : ℤ) (f : ModularForm Γ a) (g : ModularForm Γ b) :
     qExpansion h ((DirectSum.of _ a f * DirectSum.of _ b g) (a + b)) =
     qExpansion h f * qExpansion h g := by
-  simpa [DirectSum.of_mul_of] using ModularForm.qExpansion_mul hh hΓ f g
+  simpa [DirectSum.of_mul_of] using! ModularForm.qExpansion_mul hh hΓ f g
 
 lemma qExpansion_of_pow [Γ.HasDetPlusMinusOne] (hh : 0 < h)
     (hΓ : h ∈ Γ.strictPeriods) (f : ModularForm Γ k) (n : ℕ) :

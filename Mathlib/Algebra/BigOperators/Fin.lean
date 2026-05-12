@@ -702,7 +702,7 @@ theorem finSigmaFinEquiv_apply {m : ℕ} {n : Fin m → ℕ} (k : (i : Fin m) ×
   by_cases him : iv < m
   · conv in Sigma.mk _ _ =>
       equals ⟨Sum.inl ⟨iv, him⟩, j⟩ => simp [Fin.addCases, him]
-    simpa using ih _
+    simpa using! ih _
   · replace him := Nat.eq_of_lt_succ_of_not_lt hi him
     subst him
     conv in Sigma.mk _ _ =>
@@ -769,6 +769,9 @@ theorem alternatingProd_eq_finsetProd {G : Type*} [DivisionCommMonoid G] :
           simp [pow_add]}
 
 @[deprecated (since := "2026-04-08")]
+alias alternatingSum_eq_finset_sum := alternatingSum_eq_finsetSum
+
+@[to_additive existing, deprecated (since := "2026-04-08")]
 alias alternatingProd_eq_finset_prod := alternatingProd_eq_finsetProd
 
 end List

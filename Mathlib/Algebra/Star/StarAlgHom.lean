@@ -145,13 +145,11 @@ theorem coe_copy (f : A →⋆ₙₐ[R] B) (f' : A → B) (h : f' = f) : ⇑(f.c
 theorem copy_eq (f : A →⋆ₙₐ[R] B) (f' : A → B) (h : f' = f) : f.copy f' h = f :=
   DFunLike.ext' h
 
-#adaptation_note /-- After https://github.com/leanprover/lean4/pull/12179
-the simpNF linter complains about this being `@[simp]`. -/
+/-- `coe_mk'` below applies in more cases -/
 theorem coe_mk (f : A → B) (h₁ h₂ h₃ h₄ h₅) :
     ((⟨⟨⟨⟨f, h₁⟩, h₂, h₃⟩, h₄⟩, h₅⟩ : A →⋆ₙₐ[R] B) : A → B) = f :=
   rfl
 
--- this is probably the more useful lemma for Lean 4 and should likely replace `coe_mk` above
 @[simp]
 theorem coe_mk' (f : A →ₙₐ[R] B) (h) :
     ((⟨f, h⟩ : A →⋆ₙₐ[R] B) : A → B) = f :=
@@ -738,7 +736,7 @@ theorem coe_refl : ⇑(refl : A ≃⋆ₐ[R] A) = id :=
 nonrec def symm (e : A ≃⋆ₐ[R] B) : B ≃⋆ₐ[R] A :=
   { e.symm with
     map_smul' := fun r b => by
-      simpa only [apply_inv_apply, inv_apply_apply] using
+      simpa only [apply_inv_apply, inv_apply_apply] using!
         congr_arg (inv e) (map_smul e r (inv e b)).symm }
 
 /-- See Note [custom simps projection] -/

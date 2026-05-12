@@ -126,12 +126,13 @@ theorem coeff_toPolynomialAdjoinImageCompl_ne_zero
 theorem isAlgebraic_of_mem_vars_of_forall_totalDegree_le (hFa : F.aeval a = 0) (i : ι)
     (hi : i ∈ F.vars) : IsAlgebraic (Algebra.adjoin k (a '' {i}ᶜ)) (a i) := by
   classical
-  have ⟨σ, hσ, hσi⟩ := (mem_vars i).mp hi
+  have ⟨σ, hσ, hσi⟩ := (mem_vars_iff_mem_support i).mp hi
   refine ⟨toPolynomialAdjoinImageCompl F a i,
     fun h ↦ coeff_toPolynomialAdjoinImageCompl_ne_zero HF σ hσ i
       (Finsupp.mem_support_iff.mp hσi) ?_, aeval_toPolynomialAdjoinImageCompl_eq_zero hFa ..⟩
   rw [h, Polynomial.coeff_zero]
 
+set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 include hp H in
 theorem exists_mem_support_not_dvd_of_forall_totalDegree_le (hF0 : F ≠ 0) (hFa : F.aeval a = 0) :
@@ -146,10 +147,10 @@ theorem exists_mem_support_not_dvd_of_forall_totalDegree_le (hF0 : F ≠ 0) (hFa
   replace H (ι : Type u_3) (_ : Fintype ι) (v : ι → K) (hv : LinearIndependent k v) :
       LinearIndependent k (v · ^ p) := by
     simpa only [Finset.coe_image, Finset.coe_univ, Set.image_univ, linearIndepOn_range_iff
-      hv.injective] using H (Finset.univ.image v) (by simpa using hv.linearIndepOn_id)
+      hv.injective] using! H (Finset.univ.image v) (by simpa using! hv.linearIndepOn_id)
   have := mt (H F.support inferInstance (fun s ↦ aeval a (monomial (σ' s) (1 : k)))) (by
     simp_rw [← map_pow, monomial_pow, ← hσ'', one_pow, not_linearIndependent_iff]
-    refine ⟨.univ, (F.coeff ·), ?_, by simpa [MvPolynomial.eq_zero_iff] using hF0⟩
+    refine ⟨.univ, (F.coeff ·), ?_, by simpa [MvPolynomial.eq_zero_iff] using! hF0⟩
     simp only [← map_smul, ← map_sum, Finset.univ_eq_attach, smul_eq_mul, mul_one]
     rw [F.support.sum_attach (fun i ↦ monomial i (F.coeff i)), support_sum_monomial_coeff, hFa])
   simp only [LinearIndependent, injective_iff_map_eq_zero, not_forall] at this
@@ -212,7 +213,7 @@ lemma exists_isTranscendenceBasis_and_isSeparable_of_linearIndepOn_pow
   obtain ⟨i, σ, hσ, hi⟩ := exists_mem_support_not_dvd_of_forall_totalDegree_le p hp H hFmin hF₀ hFa
   have hσi : σ i ≠ 0 := by aesop
   have alg := isAlgebraic_of_mem_vars_of_forall_totalDegree_le hFmin hFa i <|
-    (mem_vars i).mpr ⟨σ, hσ, by simpa⟩
+    (mem_vars_iff_mem_support i).mpr ⟨σ, hσ, by simpa⟩
   have Hi := ha'.of_isAlgebraic_adjoin_image_compl _ i _ alg
   refine ⟨i, Hi, ?_⟩
   let k' := adjoin k (a '' {i}ᶜ)

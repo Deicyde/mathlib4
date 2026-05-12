@@ -796,7 +796,7 @@ theorem affineIndependent_of_ne {p₁ p₂ : P} (h : p₁ ≠ p₂) : AffineInde
   haveI : Unique { x // x ≠ (0 : Fin 2) } := ⟨⟨i₁⟩, he'⟩
   refine .of_subsingleton default ?_
   rw [he' default]
-  simpa using h.symm
+  simpa using! h.symm
 
 variable {k}
 
@@ -928,14 +928,14 @@ theorem sign_eq_of_affineCombination_mem_affineSpan_single_lineMap {p : ι → P
     (hs : s.affineCombination k p w ∈ line[k, p i₁, AffineMap.lineMap (p i₂) (p i₃) c]) :
     SignType.sign (w i₂) = SignType.sign (w i₃) := by
   classical
-    rw [← s.affineCombination_affineCombinationSingleWeights k p h₁, ←
+    rw [← s.affineCombination_piSingle k p h₁, ←
       s.affineCombination_affineCombinationLineMapWeights p h₂ h₃ c] at hs
     refine
-      sign_eq_of_affineCombination_mem_affineSpan_pair h hw
-        (s.sum_affineCombinationSingleWeights k h₁)
+      sign_eq_of_affineCombination_mem_affineSpan_pair h hw ?_
         (s.sum_affineCombinationLineMapWeights h₂ h₃ c) hs h₂ h₃
-        (Finset.affineCombinationSingleWeights_apply_of_ne k h₁₂.symm)
-        (Finset.affineCombinationSingleWeights_apply_of_ne k h₁₃.symm) ?_
+        (Pi.single_eq_of_ne h₁₂.symm _)
+        (Pi.single_eq_of_ne h₁₃.symm _) ?_
+    · rw [Finset.sum_pi_single', if_pos h₁]
     rw [Finset.affineCombinationLineMapWeights_apply_left h₂₃,
       Finset.affineCombinationLineMapWeights_apply_right h₂₃]
     simp_all only [sub_pos, sign_pos]

@@ -7,6 +7,7 @@ module
 
 public import Mathlib.Algebra.BigOperators.Fin
 public import Mathlib.LinearAlgebra.LinearIndependent.Defs
+public import Mathlib.Logic.Equiv.Fin.Rotate
 
 /-!
 # Linear independence
@@ -176,7 +177,7 @@ theorem LinearIndependent.group_smul {G : Type*} [hG : Group G] [MulAction G R]
   refine (Group.isUnit (w i)).smul_left_cancel.mp ?_
   refine hv s (fun i ↦ w i • g₁ i) (fun i ↦ w i • g₂ i) (fun i hi ↦ ?_) ?_ i
   · simp_rw [hgs i hi]
-  · simpa only [smul_assoc, smul_comm] using hsum
+  · simpa only [smul_assoc, smul_comm] using! hsum
 
 @[simp]
 theorem LinearIndependent.group_smul_iff {G : Type*} [hG : Group G] [MulAction G R]
@@ -195,7 +196,7 @@ theorem LinearIndependent.units_smul {v : ι → M} (hv : LinearIndependent R v)
   rw [← (w i).mul_left_inj]
   refine hv s (fun i ↦ g₁ i • w i) (fun i ↦ g₂ i • w i) (fun i hi ↦ ?_) ?_ i
   · simp_rw [hgs i hi]
-  · simpa only [smul_eq_mul, mul_smul, Pi.smul_apply'] using hsum
+  · simpa only [smul_eq_mul, mul_smul, Pi.smul_apply'] using! hsum
 
 @[simp]
 theorem LinearIndependent.units_smul_iff (v : ι → M) (w : ι → Rˣ) :
@@ -393,6 +394,13 @@ theorem LinearIndependent.finCons' {m : ℕ} (x : M) (v : Fin m → M) (hli : Li
 
 @[deprecated (since := "2026-04-07")]
 alias LinearIndependent.fin_cons' := LinearIndependent.finCons'
+
+/-- See `LinearIndependent.finSnoc` for a family of elements in a vector space. -/
+theorem LinearIndependent.finSnoc' {m : ℕ} (v : Fin m → M) (x : M) (hli : LinearIndependent R v)
+    (x_ortho : ∀ (c : R) (y : M), y ∈ Submodule.span R (Set.range v) → c • x + y = 0 → c = 0) :
+    LinearIndependent R (Fin.snoc v x : Fin m.succ → M) := by
+  rw [Fin.snoc_eq_cons_rotate v x, ← Function.comp_def]
+  exact (linearIndependent_equiv _).mpr (.finCons' x v hli x_ortho)
 
 end Module
 

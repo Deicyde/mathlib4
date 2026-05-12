@@ -110,7 +110,7 @@ theorem compProd_apply (hs : MeasurableSet s) (κ : Kernel α β) [IsSFiniteKern
   have h_int x : ∫⁻ y, swap γ β (x, y) s ∂Measure.dirac b = (Prod.mk b ⁻¹' s).indicator 1 x := by
     rw [lintegral_dirac']
     · simp [swap_apply' _ hs, Set.indicator_apply]
-    · simpa [swap_apply' _ hs, Prod.swap_prod_mk] using
+    · simpa [swap_apply' _ hs, Prod.swap_prod_mk] using!
         measurable_const.indicator (measurable_prodMk_right hs)
   simp_rw [h_int]
   rw [lintegral_indicator_one]
@@ -248,7 +248,7 @@ theorem ae_null_of_compProd_null (h : (κ ⊗ₖ η) a s = 0) :
   exact
     ⟨Filter.EventuallyLE.trans_eq
         (Filter.Eventually.of_forall fun x => measure_mono (Set.preimage_mono hst)) ht,
-      Filter.Eventually.of_forall fun x => zero_le _⟩
+      Filter.Eventually.of_forall fun x => zero_le⟩
 
 theorem ae_ae_of_ae_compProd {p : β × γ → Prop} (h : ∀ᵐ bc ∂(κ ⊗ₖ η) a, p bc) :
     ∀ᵐ b ∂κ a, ∀ᵐ c ∂η (a, b), p (b, c) :=

@@ -782,7 +782,7 @@ theorem HasFPowerSeriesWithinOnBall.isBigO_image_sub_image_sub_deriv_principal
       =O[𝓟 (Metric.eball (x, x) r' ∩ ((insert x s) ×ˢ (insert x s)))]
       fun y => ‖y - (x, x)‖ * ‖y.1 - y.2‖ := by
   lift r' to ℝ≥0 using ne_top_of_lt hr
-  rcases (zero_le r').eq_or_lt with (rfl | hr'0)
+  rcases eq_zero_or_pos r' with (rfl | hr'0)
   · simp only [ENNReal.coe_zero, Metric.eball_zero, empty_inter, principal_empty, isBigO_bot]
   obtain ⟨a, ha, C, hC : 0 < C, hp⟩ :
       ∃ a ∈ Ioo (0 : ℝ) 1, ∃ C > 0, ∀ n : ℕ, ‖p n‖ * (r' : ℝ) ^ n ≤ C * a ^ n :=
@@ -810,7 +810,7 @@ theorem HasFPowerSeriesWithinOnBall.isBigO_image_sub_image_sub_deriv_principal
       calc
         ‖A (n + 2)‖ ≤ ‖p (n + 2)‖ * ↑(n + 2) * ‖y - (x, x)‖ ^ (n + 1) * ‖y.1 - y.2‖ := by
           simpa only [Fintype.card_fin, pi_norm_const, Prod.norm_def, Pi.sub_def,
-            Prod.fst_sub, Prod.snd_sub, sub_sub_sub_cancel_right] using
+            Prod.fst_sub, Prod.snd_sub, sub_sub_sub_cancel_right] using!
             (p <| n + 2).norm_image_sub_le (fun _ => y.1 - x) fun _ => y.2 - x
         _ = ‖p (n + 2)‖ * ‖y - (x, x)‖ ^ n * (↑(n + 2) * ‖y - (x, x)‖ * ‖y.1 - y.2‖) := by
           rw [pow_succ ‖y - (x, x)‖]
@@ -1088,8 +1088,8 @@ theorem HasFPowerSeriesOnBall.sum (h : HasFPowerSeriesOnBall f p x r) {y : E}
 /-- The sum of a converging power series is continuous in its disk of convergence. -/
 protected theorem FormalMultilinearSeries.continuousOn [CompleteSpace F] :
     ContinuousOn p.sum (Metric.eball 0 p.radius) := by
-  rcases (zero_le p.radius).eq_or_lt with h | h
-  · simp [← h, continuousOn_empty]
+  rcases eq_zero_or_pos p.radius with h | h
+  · simp [h, continuousOn_empty]
   · exact (p.hasFPowerSeriesOnBall h).continuousOn
 
 end

@@ -520,7 +520,7 @@ lemma iIndepFun.indepFun_mul_left (hf_indep : iIndepFun f κ μ)
     IndepFun (f i * f j) (f k) κ μ := by
   have : IndepFun (fun ω => (f i ω, f j ω)) (f k) κ μ :=
     hf_indep.indepFun_prodMk hf_meas i j k hik hjk
-  simpa using this.comp (measurable_fst.mul measurable_snd) measurable_id
+  simpa using! this.comp (measurable_fst.mul measurable_snd) measurable_id
 
 @[to_additive]
 lemma iIndepFun.indepFun_mul_left₀ (hf_indep : iIndepFun f κ μ)
@@ -528,7 +528,7 @@ lemma iIndepFun.indepFun_mul_left₀ (hf_indep : iIndepFun f κ μ)
     IndepFun (f i * f j) (f k) κ μ := by
   have : IndepFun (fun ω => (f i ω, f j ω)) (f k) κ μ :=
     hf_indep.indepFun_prodMk₀ hf_meas i j k hik hjk
-  simpa using this.comp (measurable_fst.mul measurable_snd) measurable_id
+  simpa using! this.comp (measurable_fst.mul measurable_snd) measurable_id
 
 @[to_additive]
 lemma iIndepFun.indepFun_mul_right (hf_indep : iIndepFun f κ μ)
@@ -569,7 +569,7 @@ lemma iIndepFun.indepFun_div_left (hf_indep : iIndepFun f κ μ)
     IndepFun (f i / f j) (f k) κ μ := by
   have : IndepFun (fun ω => (f i ω, f j ω)) (f k) κ μ :=
     hf_indep.indepFun_prodMk hf_meas i j k hik hjk
-  simpa using this.comp (measurable_fst.div measurable_snd) measurable_id
+  simpa using! this.comp (measurable_fst.div measurable_snd) measurable_id
 
 @[to_additive]
 lemma iIndepFun.indepFun_div_left₀ (hf_indep : iIndepFun f κ μ)
@@ -577,7 +577,7 @@ lemma iIndepFun.indepFun_div_left₀ (hf_indep : iIndepFun f κ μ)
     IndepFun (f i / f j) (f k) κ μ := by
   have : IndepFun (fun ω => (f i ω, f j ω)) (f k) κ μ :=
     hf_indep.indepFun_prodMk₀ hf_meas i j k hik hjk
-  simpa using this.comp (measurable_fst.div measurable_snd) measurable_id
+  simpa using! this.comp (measurable_fst.div measurable_snd) measurable_id
 
 @[to_additive]
 lemma iIndepFun.indepFun_div_right (hf_indep : iIndepFun f κ μ)
@@ -635,6 +635,9 @@ theorem iIndepFun.indepFun_finsetProd_of_notMem (hf_Indep : iIndepFun f κ μ)
       h_meas_left h_meas_right
 
 @[deprecated (since := "2026-04-08")]
+alias iIndepFun.indepFun_finset_sum_of_notMem := iIndepFun.indepFun_finsetSum_of_notMem
+
+@[to_additive existing, deprecated (since := "2026-04-08")]
 alias iIndepFun.indepFun_finset_prod_of_notMem := iIndepFun.indepFun_finsetProd_of_notMem
 
 @[to_additive]
@@ -655,6 +658,9 @@ theorem iIndepFun.indepFun_finsetProd_of_notMem₀ (hf_Indep : iIndepFun f κ μ
   · exact Measure.ae_ae_of_ae_comp (hf_meas i).ae_eq_mk.symm
 
 @[deprecated (since := "2026-04-08")]
+alias iIndepFun.indepFun_finset_sum_of_notMem₀ := iIndepFun.indepFun_finsetSum_of_notMem₀
+
+@[to_additive existing, deprecated (since := "2026-04-08")]
 alias iIndepFun.indepFun_finset_prod_of_notMem₀ := iIndepFun.indepFun_finsetProd_of_notMem₀
 
 

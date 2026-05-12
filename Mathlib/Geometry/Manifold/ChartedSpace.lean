@@ -7,6 +7,7 @@ module
 
 public import Mathlib.Geometry.Manifold.StructureGroupoid
 public import Mathlib.Topology.Connected.LocPathConnected
+public import Mathlib.Topology.IsLocalHomeomorph
 public import Mathlib.Topology.OpenPartialHomeomorph.Constructions
 
 /-!
@@ -256,7 +257,7 @@ theorem ChartedSpace.locallyConnectedSpace [LocallyConnectedSpace H] : LocallyCo
   refine locallyConnectedSpace_of_connected_bases (fun x s ↦ (e x).symm '' s)
       (fun x s ↦ (IsOpen s ∧ e x x ∈ s ∧ IsConnected s) ∧ s ⊆ (e x).target) ?_ ?_
   · intro x
-    simpa only [e, OpenPartialHomeomorph.symm_map_nhds_eq, mem_chart_source] using
+    simpa only [e, OpenPartialHomeomorph.symm_map_nhds_eq, mem_chart_source] using!
       ((LocallyConnectedSpace.open_connected_basis (e x x)).restrict_subset
         ((e x).open_target.mem_nhds (mem_chart_target H x))).map (e x).symm
   · rintro x s ⟨⟨-, -, hsconn⟩, hssubset⟩
@@ -564,6 +565,33 @@ lemma ChartedSpace.mem_atlas_sum [h : Nonempty H]
   · rw [← hxe]; right; use x
 
 end sum
+
+section IsLocalHomeomorph
+
+variable [TopologicalSpace M] [TopologicalSpace M'] [TopologicalSpace H] [ChartedSpace H M]
+
+/-- Given a right inverse for a local homeomorphism `f : M → M'`, endow `M'` with a `ChartedSpace`
+structure by pushing forward the `ChartedSpace` structure from `M`. -/
+@[implicit_reducible]
+def IsLocalHomeomorph.chartedSpaceOfRightInverse
+    {f : M → M'} (hf : IsLocalHomeomorph f) {g : M' → M} (hg : Function.RightInverse g f) :
+    ChartedSpace H M' where
+  atlas := {(hf.localInverseAt (g q)).trans (chartAt H (g q)) | q : M'}
+  chartAt q := (hf.localInverseAt (g q)).trans (chartAt H (g q))
+  mem_chart_source q := by
+    nth_rw 3 [← hg.eq q]
+    simp
+  chart_mem_atlas := by simp
+
+/-- Given a surjective local homeomorphism `f : M → M'`, endow `M'` with a `ChartedSpace` structure
+by pushing forward the `ChartedSpace` structure from `M`. -/
+@[implicit_reducible]
+def IsLocalHomeomorph.chartedSpace
+    {f : M → M'} (hf : IsLocalHomeomorph f) (hf' : Function.Surjective f) :
+    ChartedSpace H M' :=
+  hf.chartedSpaceOfRightInverse hf'.hasRightInverse.choose_spec
+
+end IsLocalHomeomorph
 
 end Constructions
 

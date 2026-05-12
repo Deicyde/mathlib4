@@ -154,11 +154,11 @@ theorem exists_closed_cover_approximatesLinearOn_of_hasFDerivWithinAt [SecondCou
       have : f' x ∈ ⋃ z ∈ T, ball (f' (z : E)) (r (f' z)) := by
         rw [hT]
         refine mem_iUnion.2 ⟨⟨x, xs⟩, ?_⟩
-        simpa only [mem_ball, Subtype.coe_mk, dist_self] using (rpos (f' x)).bot_lt
+        simpa only [mem_ball, Subtype.coe_mk, dist_self] using! (rpos (f' x)).bot_lt
       rwa [mem_iUnion₂, bex_def] at this
     obtain ⟨ε, εpos, hε⟩ : ∃ ε : ℝ, 0 < ε ∧ ‖f' x - f' z‖ + ε ≤ r (f' z) := by
       refine ⟨r (f' z) - ‖f' x - f' z‖, ?_, le_of_eq (by abel)⟩
-      simpa only [sub_pos] using mem_ball_iff_norm.mp hz
+      simpa only [sub_pos] using! mem_ball_iff_norm.mp hz
     obtain ⟨δ, δpos, hδ⟩ :
       ∃ (δ : ℝ), 0 < δ ∧ ball x δ ∩ s ⊆ {y | ‖f y - f x - (f' x) (y - x)‖ ≤ ε * ‖y - x‖} :=
       Metric.mem_nhdsWithin_iff.1 ((hf' x xs).isLittleO.def εpos)
@@ -389,6 +389,7 @@ theorem addHaar_image_le_mul_of_det_lt (A : E →L[ℝ] E) {m : ℝ≥0}
   rw [add_zero] at L
   exact ge_of_tendsto L J
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Let `f` be a function which is sufficiently close (in the Lipschitz sense) to a given linear
 map `A`. Then it expands the volume of any set by at least `m` for any `m < det A`. -/
 theorem mul_le_addHaar_image_of_lt_det (A : E →L[ℝ] E) {m : ℝ≥0}
@@ -400,7 +401,7 @@ theorem mul_le_addHaar_image_of_lt_det (A : E →L[ℝ] E) {m : ℝ≥0}
   -- invertible. One can then pass to the inverses, and deduce the estimate from
   -- `addHaar_image_le_mul_of_det_lt` applied to `f⁻¹` and `A⁻¹`.
   -- exclude first the trivial case where `m = 0`.
-  rcases eq_or_lt_of_le (zero_le m) with (rfl | mpos)
+  rcases eq_zero_or_pos m with (rfl | mpos)
   · filter_upwards
     simp only [forall_const, zero_mul, imp_true_iff, zero_le, ENNReal.coe_zero]
   have hA : A.det ≠ 0 := by
@@ -559,7 +560,7 @@ assumptions.
 /-- A differentiable function maps sets of measure zero to sets of measure zero. -/
 theorem addHaar_image_eq_zero_of_differentiableOn_of_addHaar_eq_zero (hf : DifferentiableOn ℝ f s)
     (hs : μ s = 0) : μ (f '' s) = 0 := by
-  refine le_antisymm ?_ (zero_le _)
+  rw [← nonpos_iff_eq_zero]
   have :
       ∀ A : E →L[ℝ] E, ∃ δ : ℝ≥0, 0 < δ ∧
         ∀ (t : Set E), ApproximatesLinearOn f A t δ →
@@ -595,6 +596,7 @@ theorem addHaar_image_eq_zero_of_differentiableOn_of_addHaar_eq_zero (hf : Diffe
       exact le_trans (measure_mono inter_subset_left) (le_of_eq hs)
     _ = 0 := by simp only [tsum_zero, mul_zero]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- A version of **Sard's lemma** in fixed dimension: given a differentiable function from `E`
 to `E` and a set where the differential is not invertible, then the image of this set has
 zero measure. Here, we give an auxiliary statement towards this result. -/
@@ -650,8 +652,7 @@ theorem addHaar_image_eq_zero_of_det_fderivWithin_eq_zero
     (hf' : ∀ x ∈ s, HasFDerivWithinAt f (f' x) s x) (h'f' : ∀ x ∈ s, (f' x).det = 0) :
     μ (f '' s) = 0 := by
   suffices H : ∀ R, μ (f '' (s ∩ closedBall 0 R)) = 0 by
-    apply le_antisymm _ (zero_le _)
-    rw [← iUnion_inter_closedBall_nat s 0]
+    rw [← nonpos_iff_eq_zero, ← iUnion_inter_closedBall_nat s 0]
     calc
       μ (f '' ⋃ n : ℕ, s ∩ closedBall 0 n) ≤ ∑' n : ℕ, μ (f '' (s ∩ closedBall 0 n)) := by
         rw [image_iUnion]; exact measure_iUnion_le _
@@ -670,7 +671,7 @@ theorem addHaar_image_eq_zero_of_det_fderivWithin_eq_zero
         (Or.inr measure_closedBall_lt_top.ne)
     simp only [zero_mul, ENNReal.coe_zero] at this
     exact Tendsto.mono_left this nhdsWithin_le_nhds
-  apply le_antisymm _ (zero_le _)
+  rw [← nonpos_iff_eq_zero]
   apply ge_of_tendsto B
   filter_upwards [self_mem_nhdsWithin]
   exact A
@@ -802,6 +803,7 @@ directions, first up to controlled errors and then letting these errors tend to 
 -/
 
 
+set_option backward.isDefEq.respectTransparency false in
 theorem addHaar_image_le_lintegral_abs_det_fderiv_aux1 (hs : MeasurableSet s)
     (hf' : ∀ x ∈ s, HasFDerivWithinAt f (f' x) s x) {ε : ℝ≥0} (εpos : 0 < ε) :
     μ (f '' s) ≤ (∫⁻ x in s, ENNReal.ofReal |(f' x).det| ∂μ) + 2 * ε * μ s := by

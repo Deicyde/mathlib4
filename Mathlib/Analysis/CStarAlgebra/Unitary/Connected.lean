@@ -135,12 +135,11 @@ noncomputable def Unitary.argSelfAdjoint (u : unitary A) : selfAdjoint A :=
 
 @[deprecated (since := "2025-10-29")] alias unitary.argSelfAdjoint := Unitary.argSelfAdjoint
 
-set_option backward.isDefEq.respectTransparency false in
 lemma selfAdjoint.norm_sq_expUnitary_sub_one {x : selfAdjoint A} (hx : ‖x‖ ≤ π) :
     ‖(expUnitary x - 1 : A)‖ ^ 2 = 2 * (1 - Real.cos ‖x‖) := by
   nontriviality A
   apply norm_sub_one_sq_eq (expUnitary x).2
-  simp only [expUnitary_coe, AddSubgroupClass.coe_norm]
+  simp only [expUnitary_coe]
   rw [← CFC.exp_eq_normedSpace_exp (𝕜 := ℂ), ← cfc_comp_smul I _ (x : A), cfc_map_spectrum ..,
     ← x.2.spectrumRestricts.algebraMap_image]
   simp only [Set.image_image, coe_algebraMap, smul_eq_mul, mul_comm I, ← exp_eq_exp_ℂ,
@@ -153,7 +152,6 @@ lemma selfAdjoint.norm_sq_expUnitary_sub_one {x : selfAdjoint A} (hx : ‖x‖ �
     exact Real.cos_abs y ▸ Real.cos_le_cos_of_nonneg_of_le_pi (by positivity) hx <|
       spectrum.norm_le_norm_of_mem hy
 
-set_option backward.isDefEq.respectTransparency false in
 lemma argSelfAdjoint_expUnitary {x : selfAdjoint A} (hx : ‖x‖ < π) :
     argSelfAdjoint (expUnitary x) = x := by
   nontriviality A
@@ -374,7 +372,7 @@ lemma Unitary.isPathConnected_ball (u : unitary A) (δ : ℝ) (hδ₀ : 0 < δ) 
 /-- The unitary group in a C⋆-algebra is locally path connected. -/
 instance Unitary.instLocPathConnectedSpace : LocPathConnectedSpace (unitary A) :=
   .of_bases (fun _ ↦ nhds_basis_uniformity <| uniformity_basis_dist_lt zero_lt_two) <| by
-    simpa using isPathConnected_ball
+    simpa using! isPathConnected_ball
 
 /-- The path component of the identity in the unitary group of a C⋆-algebra is the set of
 unitaries that can be expressed as a product of exponential unitaries. -/
@@ -390,11 +388,11 @@ lemma Unitary.mem_pathComponentOne_iff {u : unitary A} :
     obtain ⟨v, ⟨⟨l, (hlv : (l.map expUnitary).prod = v)⟩, huv⟩⟩ := hu
     refine ⟨argSelfAdjoint (u * star v) :: l, ?_⟩
     simp [hlv, mul_assoc,
-      expUnitary_eq_mul_inv u v (by simpa [Subtype.dist_eq, dist_eq_norm] using huv)]
+      expUnitary_eq_mul_inv u v (by simpa [Subtype.dist_eq, dist_eq_norm] using! huv)]
   · rintro ⟨l, rfl⟩
     induction l with
     | nil => simp
-    | cons x xs ih => simpa using (joined_one_expUnitary x).mul ih
+    | cons x xs ih => simpa using! (joined_one_expUnitary x).mul ih
 
 @[deprecated (since := "2025-10-29")] alias unitary.mem_pathComponentOne_iff :=
   Unitary.mem_pathComponentOne_iff

@@ -321,7 +321,7 @@ nonrec theorem _root_.Function.RightInverse.filter_comap {f : α → β} {g : β
 
 theorem _root_.Set.LeftInvOn.filter_map_Iic {f : α → β} {g : β → α} (hfg : LeftInvOn g f s) :
     LeftInvOn (map g) (map f) (Iic <| 𝓟 s) := fun F (hF : F ≤ 𝓟 s) ↦ by
-  have : (g ∘ f) =ᶠ[𝓟 s] id := by simpa only [eventuallyEq_principal] using hfg
+  have : (g ∘ f) =ᶠ[𝓟 s] id := by simpa only [eventuallyEq_principal] using! hfg
   rw [map_map, map_congr (this.filter_mono hF), map_id]
 
 nonrec theorem _root_.Set.RightInvOn.filter_map_Iic {f : α → β} {g : β → α}
@@ -779,7 +779,7 @@ protected theorem push_pull (f : α → β) (F : Filter α) (G : Filter β) :
     calc
       f '' V ∩ Z = f '' (V ∩ f ⁻¹' Z) := by rw [image_inter_preimage]
       _ ⊆ f '' (V ∩ W) := by gcongr
-      _ = f '' (f ⁻¹' U) := by rw [h]
+      _ = f '' f ⁻¹' U := by rw [h]
       _ ⊆ U := image_preimage_subset f U
 
 protected theorem push_pull' (f : α → β) (F : Filter α) (G : Filter β) :

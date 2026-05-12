@@ -484,7 +484,7 @@ theorem haarContent_self {K₀ : PositiveCompacts G} : haarContent K₀ K₀.toC
 @[to_additive /-- The variant of `is_left_invariant_addCHaar` for `addHaarContent` -/]
 theorem is_left_invariant_haarContent {K₀ : PositiveCompacts G} (g : G) (K : Compacts G) :
     haarContent K₀ (K.map _ <| continuous_const_mul g) = haarContent K₀ K := by
-  simpa only [ENNReal.coe_inj, ← NNReal.coe_inj, haarContent_apply] using
+  simpa only [ENNReal.coe_inj, ← NNReal.coe_inj, haarContent_apply] using!
     is_left_invariant_chaar g K
 
 @[to_additive]
@@ -587,7 +587,7 @@ but `E / E` does not contain a neighborhood of zero. On the other hand, it is al
 inner regular Haar measures (and in particular for any Haar measure on a second countable group).
 -/
 
-open Pointwise
+open scoped Pointwise
 
 @[to_additive]
 private lemma steinhaus_mul_aux (μ : Measure G) [IsHaarMeasure μ] [μ.InnerRegularCompactLTTop]

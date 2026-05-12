@@ -307,10 +307,8 @@ theorem coe_embedding (i : Fin c.length) (j : Fin (c.blocksFun i)) :
 In the next definition `index` we use `Nat.find` to produce the minimal such index.
 -/
 theorem index_exists {j : ℕ} (h : j < n) : ∃ i : ℕ, j < c.sizeUpTo (i + 1) ∧ i < c.length := by
-  have n_pos : 0 < n := lt_of_le_of_lt (zero_le j) h
-  have : 0 < c.blocks.sum := by rwa [← c.blocks_sum] at n_pos
-  have length_pos : 0 < c.blocks.length := length_pos_of_sum_pos (blocks c) this
-  refine ⟨c.length - 1, ?_, Nat.pred_lt (ne_of_gt length_pos)⟩
+  have length_pos := length_pos_of_sum_pos (blocks c) (h.pos.trans_eq c.blocks_sum.symm)
+  refine ⟨_, ?_, Nat.pred_lt length_pos.ne'⟩
   have : c.length - 1 + 1 = c.length := Nat.succ_pred_eq_of_pos length_pos
   simp [this, h]
 
@@ -572,7 +570,7 @@ theorem ne_single_iff {n : ℕ} (hn : 0 < n) {c : Composition n} :
         ∑ k, c.blocksFun k ≤ c.blocksFun i := by simp only [c.sum_blocksFun, hi]
         _ < ∑ k, c.blocksFun k :=
           Finset.single_lt_sum ji (Finset.mem_univ _) (Finset.mem_univ _) (c.one_le_blocksFun j)
-            fun _ _ _ => zero_le _
+            fun _ _ _ => zero_le
     simpa using Fintype.card_eq_one_of_forall_eq this
 
 variable {m : ℕ}
@@ -833,9 +831,9 @@ def compositionAsSetEquiv (n : ℕ) : CompositionAsSet n ≃ Finset (Fin (n - 1)
       rintro i_mem ⟨j, rfl⟩ i_ne_last
       rcases Nat.exists_add_one_eq.mpr j.pos with ⟨n, rfl⟩
       obtain ⟨k, rfl⟩ : ∃ k : Fin n, k.castSucc = j := by
-        simpa [Fin.exists_castSucc_eq] using i_ne_last
+        simpa [Fin.exists_castSucc_eq] using! i_ne_last
       use k
-      simpa using i_mem
+      simpa using! i_mem
   right_inv := by
     intro s
     ext i

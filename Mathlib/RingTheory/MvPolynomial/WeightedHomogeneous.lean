@@ -403,7 +403,7 @@ theorem weightedHomogeneousComponent_finsupp :
   intro m hm
   by_contra hm'
   apply hm (weightedHomogeneousComponent_eq_zero' m φ _)
-  simpa only [Set.mem_image, not_exists, not_and] using hm'
+  simpa only [Set.mem_image, not_exists, not_and] using! hm'
 
 variable (w)
 
@@ -471,6 +471,11 @@ theorem weightedHomogeneousComponent_of_mem [DecidableEq M] {m n : M}
     split_ifs with h1
     · rfl
     · simp only [coeff_zero]
+
+lemma support_weightedHomogeneousComponent [DecidableEq M] (n : M) (p : MvPolynomial σ R) :
+    (weightedHomogeneousComponent w n p).support = {c ∈ p.support | (weight w) c = n} := by
+  ext c
+  simp [coeff_weightedHomogeneousComponent, And.comm]
 
 variable (R w)
 

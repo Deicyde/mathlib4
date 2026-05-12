@@ -125,7 +125,7 @@ theorem univ_umax : univ.{u, max (u + 1) v} = univ.{u, v} :=
   congr_fun lift_umax _
 
 theorem lift_lt_univ (c : Cardinal) : lift.{u + 1, u} c < univ.{u, u + 1} := by
-  simpa only [Ordinal.liftPrincipalSeg_coe, lift_ord, lift_succ, ord_le, Order.succ_le_iff] using
+  simpa only [Ordinal.liftPrincipalSeg_coe, lift_ord, lift_succ, ord_le, Order.succ_le_iff] using!
     le_of_lt (Ordinal.liftPrincipalSeg.{u, u + 1}.lt_top (Order.succ c).ord)
 
 theorem lift_lt_univ' (c : Cardinal) : lift.{max (u + 1) v, u} c < univ.{u, v} := by
@@ -133,14 +133,18 @@ theorem lift_lt_univ' (c : Cardinal) : lift.{max (u + 1) v, u} c < univ.{u, v} :
   rw [lift_lift, lift_univ, univ_umax.{u, v}] at this
   exact this
 
+@[simp]
 theorem aleph0_lt_univ : ℵ₀ < univ.{u, v} := by
   simpa using lift_lt_univ' ℵ₀
 
+@[simp]
 theorem nat_lt_univ (n : ℕ) : n < univ.{u, v} := natCast_lt_aleph0.trans aleph0_lt_univ
 
+@[simp]
 theorem univ_pos : 0 < univ.{u, v} :=
-  aleph0_pos.trans aleph0_lt_univ
+  aleph0_lt_univ.pos
 
+@[simp]
 theorem univ_ne_zero : univ.{u, v} ≠ 0 :=
   univ_pos.ne'
 

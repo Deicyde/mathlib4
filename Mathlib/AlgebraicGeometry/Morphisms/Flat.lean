@@ -224,6 +224,7 @@ lemma isIso_pushoutSection_iff :
     (asIso (pushoutSection H hUST hUSX hUY)) (by simp) (by simp) (by simp) (by simp),
     fun h ↦ inferInstanceAs (IsIso h.isoPushout.inv)⟩
 
+set_option backward.defeqAttrib.useBackward true in
 attribute [local simp] IsAffineOpen.isoSpec_hom in
 attribute [local simp← ] Scheme.Hom.resLE_eq_morphismRestrict in
 lemma isIso_pushoutSection_of_isAffineOpen (hUS : IsAffineOpen US) (hUT : IsAffineOpen UT)
@@ -297,7 +298,7 @@ lemma mono_pushoutSection_of_iSup_eq {ι : Type*} [Finite ι] (VX : ι → X.Ope
       (Algebra.TensorProduct.map (AlgHom.id Γ(T, UT) Γ(T, UT)) ψ).toRingHom by
     refine .of_comp (f := ψY) ?_
     convert (hφ.comp hψ').comp e.commRingCatIsoToRingEquiv.injective
-    ext1 x; simpa using congr($this (e.hom x))
+    ext1 x; simpa using! congr($this (e.hom x))
   ext1
   · have H₁ : e.inv.hom.comp Algebra.TensorProduct.includeLeftRingHom =
         (pushout.inr (C := CommRingCat) _ _).hom :=
@@ -320,6 +321,7 @@ lemma mono_pushoutSection_of_iSup_eq {ι : Type*} [Finite ι] (VX : ι → X.Ope
     ext x j
     simp [ψY, H₂, -CommRingCat.hom_comp, ← CategoryTheory.comp_apply, pushoutSection, ψ]
 
+set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 lemma isIso_pushoutSection_of_iSup_eq
     {ι : Type u} [Finite ι] (VX : ι → X.Opens) (hVU : iSup VX = UX)

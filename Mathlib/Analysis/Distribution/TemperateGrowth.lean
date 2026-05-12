@@ -136,7 +136,7 @@ theorem HasTemperateGrowth.comp' [NormedAddCommGroup D] [NormedSpace ℝ D] {g :
   refine ⟨hg₁.comp_contDiff hf.1 (ht ⟨·, rfl⟩), fun n ↦ ?_⟩
   obtain ⟨k₁, C₁, hC₁, h₁⟩ := hf.norm_iteratedFDeriv_le_uniform n
   obtain ⟨k₂, C₂, hC₂, h₂⟩ := hg₂ n
-  have h₁' : ∀ x, ‖f x‖ ≤ C₁ * (1 + ‖x‖) ^ k₁ := by simpa using h₁ 0 (zero_le _)
+  have h₁' : ∀ x, ‖f x‖ ≤ C₁ * (1 + ‖x‖) ^ k₁ := by simpa using h₁ 0
   set C₃ := ∑ k ∈ Finset.range (k₂ + 1), C₂ * (k₂.choose k : ℝ) * (C₁ ^ k)
   use k₁ * k₂ + k₁ * n, n ! * C₃ * (1 + C₁) ^ n
   intro x
@@ -215,8 +215,8 @@ theorem HasTemperateGrowth.sum {f : ι → E → F} {s : Finset ι}
   induction s using Finset.induction_on with
   | empty => simp
   | insert a s has ih =>
-    obtain ⟨hf, h⟩ := by simpa using hf
-    simpa [has] using hf.add (ih h)
+    obtain ⟨hf, h⟩ := by simpa using! hf
+    simpa [has] using! hf.add (ih h)
 
 end Addition
 
@@ -281,7 +281,7 @@ theorem HasTemperateGrowth.mul {f g : E → R} (hf : f.HasTemperateGrowth)
 theorem HasTemperateGrowth.pow {f : E → R} (hf : f.HasTemperateGrowth) (k : ℕ) :
     (f ^ k).HasTemperateGrowth := by
   induction k with
-  | zero => simpa only [pow_zero] using HasTemperateGrowth.const 1
+  | zero => simpa only [pow_zero] using! HasTemperateGrowth.const 1
   | succ k IH => rw [pow_succ]; fun_prop
 
 end Multiplication

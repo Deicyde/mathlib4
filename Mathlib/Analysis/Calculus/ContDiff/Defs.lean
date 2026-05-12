@@ -208,7 +208,7 @@ theorem contDiffWithinAt_infty :
 
 theorem ContDiffWithinAt.continuousWithinAt (h : ContDiffWithinAt 𝕜 n f s x) :
     ContinuousWithinAt f s x := by
-  have := h.of_le (zero_le _)
+  have := h.of_le zero_le
   simp only [ContDiffWithinAt, nonpos_iff_eq_zero, Nat.cast_eq_zero, forall_eq, CharP.cast_eq_zero]
     at this
   rcases this with ⟨u, hu, p, H⟩
@@ -1025,7 +1025,7 @@ theorem contDiffAt_succ_iff_hasFDerivAt {n : ℕ} :
 
 protected theorem ContDiffAt.eventually (h : ContDiffAt 𝕜 n f x) (h' : n ≠ ∞) :
     ∀ᶠ y in 𝓝 x, ContDiffAt 𝕜 n f y := by
-  simpa [nhdsWithin_univ] using ContDiffWithinAt.eventually h h'
+  simpa [nhdsWithin_univ] using! ContDiffWithinAt.eventually h h'
 
 theorem iteratedFDerivWithin_eq_iteratedFDeriv {n : ℕ}
     (hs : UniqueDiffOn 𝕜 s) (h : ContDiffAt 𝕜 n f x) (hx : x ∈ s) :

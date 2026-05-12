@@ -776,11 +776,11 @@ include K
 
 variable (K) in
 lemma norm_nnqsmul (q : ℚ≥0) (x : E) : ‖q • x‖ = q • ‖x‖ := by
-  simpa [NNRat.cast_smul_eq_nnqsmul] using norm_smul (q : K) x
+  simpa [NNRat.cast_smul_eq_nnqsmul] using! norm_smul (q : K) x
 
 variable (K) in
 lemma nnnorm_nnqsmul (q : ℚ≥0) (x : E) : ‖q • x‖₊ = q • ‖x‖₊ := by
-  simpa [NNRat.cast_smul_eq_nnqsmul] using nnnorm_smul (q : K) x
+  simpa [NNRat.cast_smul_eq_nnqsmul] using! nnnorm_smul (q : K) x
 
 @[bound]
 lemma norm_expect_le {ι : Type*} {s : Finset ι} {f : ι → E} : ‖𝔼 i ∈ s, f i‖ ≤ 𝔼 i ∈ s, ‖f i‖ :=
@@ -1108,13 +1108,20 @@ instance (priority := 100) : ContinuousStar K :=
 theorem continuous_conj : Continuous (conj : K → K) :=
   continuous_star
 
-/-- The `ℝ → K` coercion, as a linear map -/
+/-- The `ℝ → K` coercion, as an algebra map. -/
 noncomputable def ofRealAm : ℝ →ₐ[ℝ] K :=
   Algebra.ofId ℝ K
 
 @[simp, rclike_simps]
 theorem ofRealAm_coe : (ofRealAm : ℝ → K) = ofReal :=
   rfl
+
+variable (K) in
+/-- The `ℝ → K` coercion, as a ⋆-algebra map. -/
+noncomputable def ofRealStarAlgHom : ℝ →⋆ₐ[ℝ] K := .ofId ℝ K
+
+@[simp] theorem coe_ofRealStarAlgHom : (ofRealStarAlgHom K : ℝ → K) = ofReal := rfl
+@[simp] lemma toAlgHom_ofRealStarAlgHom : (ofRealStarAlgHom K).toAlgHom = ofRealAm := rfl
 
 /-- The ℝ → K coercion, as a linear isometry -/
 noncomputable def ofRealLI : ℝ →ₗᵢ[ℝ] K where

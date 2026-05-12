@@ -41,11 +41,11 @@ def polarCoord : OpenPartialHomeomorph (ℝ × ℝ) (ℝ × ℝ) where
     rintro ⟨r, θ⟩ ⟨hr, hθ⟩
     dsimp at hr hθ
     rcases eq_or_ne θ 0 with (rfl | h'θ)
-    · simpa using hr
+    · simpa using! hr
     · right
       simp at hr
       simpa only [ne_of_gt hr, Ne, mem_setOf_eq, mul_eq_zero, false_or,
-        sin_eq_zero_iff_of_lt_of_lt hθ.1 hθ.2] using h'θ
+        sin_eq_zero_iff_of_lt_of_lt hθ.1 hθ.2] using! h'θ
   map_source' := by
     rintro ⟨x, y⟩ hxy
     simp only [prodMk_mem_set_prod_eq, mem_Ioi, sqrt_pos, mem_Ioo, Complex.neg_pi_lt_arg,
@@ -81,7 +81,7 @@ def polarCoord : OpenPartialHomeomorph (ℝ × ℝ) (ℝ × ℝ) where
     refine .prodMk (by fun_prop) ?_
     have A : MapsTo Complex.equivRealProd.symm ({q : ℝ × ℝ | 0 < q.1} ∪ {q : ℝ × ℝ | q.2 ≠ 0})
         Complex.slitPlane := by
-      rintro ⟨x, y⟩ hxy; simpa only using hxy
+      rintro ⟨x, y⟩ hxy; simpa only using! hxy
     refine ContinuousOn.comp (f := Complex.equivRealProd.symm)
       (g := Complex.arg) (fun z hz => ?_) ?_ A
     · exact (Complex.continuousAt_arg hz).continuousWithinAt
@@ -202,7 +202,6 @@ theorem measurableEquivRealProd_symm_polarCoord_symm_apply (p : ℝ × ℝ) :
 theorem norm_polarCoord_symm (p : ℝ × ℝ) :
     ‖Complex.polarCoord.symm p‖ = |p.1| := by simp
 
-set_option backward.isDefEq.respectTransparency false in
 protected theorem integral_comp_polarCoord_symm {E : Type*} [NormedAddCommGroup E]
     [NormedSpace ℝ E] (f : ℂ → E) :
     (∫ p in polarCoord.target, p.1 • f (Complex.polarCoord.symm p)) = ∫ p, f p := by
@@ -210,7 +209,6 @@ protected theorem integral_comp_polarCoord_symm {E : Type*} [NormedAddCommGroup 
     measurableEquivRealProd.symm.measurableEmbedding, ← integral_comp_polarCoord_symm]
   simp_rw [measurableEquivRealProd_symm_polarCoord_symm_apply]
 
-set_option backward.isDefEq.respectTransparency false in
 protected theorem lintegral_comp_polarCoord_symm (f : ℂ → ℝ≥0∞) :
     (∫⁻ p in polarCoord.target, ENNReal.ofReal p.1 • f (Complex.polarCoord.symm p)) =
       ∫⁻ p, f p := by
@@ -274,7 +272,6 @@ theorem integral_comp_pi_polarCoord_symm {E : Type*} [NormedAddCommGroup E] [Nor
   refine setIntegral_congr_fun measurableSet_pi_polarCoord_target fun x hx ↦ ?_
   simp_rw [det_fderivPiPolarCoordSymm, Finset.abs_prod, abs_fst_of_mem_pi_polarCoord_target hx]
 
-set_option backward.isDefEq.respectTransparency false in
 protected theorem Complex.integral_comp_pi_polarCoord_symm {E : Type*} [NormedAddCommGroup E]
     [NormedSpace ℝ E] (f : (ι → ℂ) → E) :
     (∫ p in (Set.univ.pi fun _ : ι ↦ Complex.polarCoord.target),
@@ -295,7 +292,6 @@ theorem lintegral_comp_pi_polarCoord_symm (f : (ι → ℝ × ℝ) → ℝ≥0�
   simp_rw [det_fderivPiPolarCoordSymm, Finset.abs_prod, ENNReal.ofReal_prod_of_nonneg (fun _ _ ↦
     abs_nonneg _), abs_fst_of_mem_pi_polarCoord_target hx]
 
-set_option backward.isDefEq.respectTransparency false in
 protected theorem Complex.lintegral_comp_pi_polarCoord_symm (f : (ι → ℂ) → ℝ≥0∞) :
     ∫⁻ p in (Set.univ.pi fun _ : ι ↦ Complex.polarCoord.target),
       (∏ i, .ofReal (p i).1) * f (fun i ↦ Complex.polarCoord.symm (p i)) = ∫⁻ p, f p := by

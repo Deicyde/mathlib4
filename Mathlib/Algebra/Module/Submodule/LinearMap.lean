@@ -110,7 +110,7 @@ variable {α β : Type*}
 
 /-- The action by a submodule is the action by the underlying module. -/
 instance [AddAction M α] : AddAction p α :=
-  fast_instance% AddAction.compHom _ p.subtype.toAddMonoidHom
+  AddSubmonoid.instAddActionSubtypeMem p
 
 end AddAction
 
@@ -177,7 +177,7 @@ theorem subtype_comp_codRestrict (p : Submodule R₂ M₂) (h : ∀ b, f b ∈ p
 section
 
 variable {M₂' : Type*} [AddCommMonoid M₂'] [Module R₂ M₂']
-(p : M₂' →ₗ[R₂] M₂) (hp : Injective p) (h : ∀ c, f c ∈ range p)
+  (p : M₂' →ₗ[R₂] M₂) (hp : Injective p) (h : ∀ c, f c ∈ range p)
 
 /-- A linear map `f : M → M₂` whose values lie in the image of an injective linear map
 `p : M₂' → M₂` admits a unique lift to a linear map `M → M₂'`. -/
@@ -289,7 +289,7 @@ theorem _root_.Module.End.pow_apply_mem_of_forall_mem {p : Submodule R M} (n : �
   induction n generalizing x with
   | zero => simpa
   | succ n ih =>
-    simpa only [iterate_succ, coe_comp, Function.comp_apply, restrict_apply] using ih _ (h _ hx)
+    simpa only [iterate_succ, coe_comp, Function.comp_apply, restrict_apply] using! ih _ (h _ hx)
 
 theorem _root_.Module.End.pow_restrict {p : Submodule R M} (n : ℕ) (h : ∀ x ∈ p, f' x ∈ p)
     (h' := Module.End.pow_apply_mem_of_forall_mem n h) :

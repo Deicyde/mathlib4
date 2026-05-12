@@ -574,8 +574,8 @@ variable [TopologicalSpace M] [MulOneClass M] [ContinuousMul M]
 theorem exists_open_nhds_one_split {s : Set M} (hs : s ∈ 𝓝 (1 : M)) :
     ∃ V : Set M, IsOpen V ∧ (1 : M) ∈ V ∧ ∀ v ∈ V, ∀ w ∈ V, v * w ∈ s := by
   have : (fun a : M × M => a.1 * a.2) ⁻¹' s ∈ 𝓝 ((1, 1) : M × M) :=
-    tendsto_mul (by simpa only [one_mul] using hs)
-  simpa only [prod_subset_iff] using exists_nhds_square this
+    tendsto_mul (by simpa only [one_mul] using! hs)
+  simpa only [prod_subset_iff] using! exists_nhds_square this
 
 @[to_additive exists_nhds_zero_half]
 theorem exists_nhds_one_split {s : Set M} (hs : s ∈ 𝓝 (1 : M)) :
@@ -595,7 +595,7 @@ theorem exists_open_nhds_one_mul_subset {U : Set M} (hU : U ∈ 𝓝 (1 : M)) :
 theorem Filter.HasBasis.mul_self {p : ι → Prop} {s : ι → Set M} (h : (𝓝 1).HasBasis p s) :
     (𝓝 1).HasBasis p fun i => s i * s i := by
   rw [← nhds_mul_nhds_one, ← map₂_mul, ← map_uncurry_prod]
-  simpa only [← image_mul_prod] using h.prod_self.map _
+  simpa only [← image_mul_prod] using! h.prod_self.map _
 
 end MulOneClass
 
@@ -919,7 +919,10 @@ theorem tendsto_finsetProd {f : ι → α → M} {x : Filter α} {a : ι → M} 
       Tendsto (fun b => ∏ c ∈ s, f c b) x (𝓝 (∏ c ∈ s, a c)) :=
   tendsto_multiset_prod _
 
-@[deprecated (since := "2026-04-08")] alias tendsto_finset_prod := tendsto_finsetProd
+@[deprecated (since := "2026-04-08")] alias tendsto_finset_sum := tendsto_finsetSum
+
+@[to_additive existing, deprecated (since := "2026-04-08")]
+alias tendsto_finset_prod := tendsto_finsetProd
 
 @[to_additive (attr := continuity, fun_prop)]
 theorem continuous_multiset_prod {f : ι → X → M} (s : Multiset ι) :
@@ -938,14 +941,20 @@ theorem continuous_finsetProd {f : ι → X → M} (s : Finset ι) :
     (∀ i ∈ s, Continuous (f i)) → Continuous fun a => ∏ i ∈ s, f i a :=
   continuous_multiset_prod _
 
-@[deprecated (since := "2026-04-08")] alias continuous_finset_prod := continuous_finsetProd
+@[deprecated (since := "2026-04-08")] alias continuous_finset_sum := continuous_finsetSum
+
+@[to_additive existing, deprecated (since := "2026-04-08")]
+alias continuous_finset_prod := continuous_finsetProd
 
 @[to_additive]
 theorem continuousOn_finsetProd {f : ι → X → M} (s : Finset ι) {t : Set X} :
     (∀ i ∈ s, ContinuousOn (f i) t) → ContinuousOn (fun a => ∏ i ∈ s, f i a) t :=
   continuousOn_multiset_prod _
 
-@[deprecated (since := "2026-04-08")] alias continuousOn_finset_prod := continuousOn_finsetProd
+@[deprecated (since := "2026-04-08")] alias continuousOn_finset_sum := continuousOn_finsetSum
+
+@[to_additive existing, deprecated (since := "2026-04-08")]
+alias continuousOn_finset_prod := continuousOn_finsetProd
 
 @[to_additive]
 theorem eventuallyEq_prod {X M : Type*} [CommMonoid M] {s : Finset ι} {l : Filter X}

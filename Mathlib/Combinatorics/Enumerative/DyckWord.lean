@@ -5,7 +5,7 @@ Authors: Jeremy Tan
 -/
 module
 
-public import Mathlib.Combinatorics.Enumerative.Catalan
+public import Mathlib.Combinatorics.Enumerative.Catalan.Tree
 
 import Batteries.Data.List.Count
 import Mathlib.Tactic.Positivity.Finset
@@ -173,7 +173,7 @@ def nest : DyckWord where
     rw [take_of_length_le (show [U].length ≤ i by rwa [length_singleton]), count_singleton']
     simp only [reduceCtorEq, ite_false]
     rw [add_comm]
-    exact add_le_add (zero_le _) (count_le_length.trans (by simp))
+    exact add_le_add zero_le (count_le_length.trans (by simp))
 
 @[simp] lemma nest_ne_zero : p.nest ≠ 0 := by simp [← toList_ne_nil, nest]
 
@@ -221,7 +221,7 @@ def denest (hn : p.IsNested) : DyckWord where
 
 variable (p) in
 lemma nest_denest (hn) : (p.denest hn).nest = p := by
-  simpa [DyckWord.ext_iff] using p.cons_tail_dropLast_concat hn.1
+  simpa [DyckWord.ext_iff] using! p.cons_tail_dropLast_concat hn.1
 
 variable (p) in
 lemma denest_nest : p.nest.denest .nest = p := by
@@ -283,7 +283,7 @@ lemma count_take_firstReturn_add_one :
     (p.toList.take (p.firstReturn + 1)).count U = (p.toList.take (p.firstReturn + 1)).count D := by
   have := findIdx_getElem
     (w := (length_range (n := p.toList.length)).symm ▸ firstReturn_lt_length h)
-  simpa using this
+  simpa using! this
 
 lemma count_D_lt_count_U_of_lt_firstReturn {i : ℕ} (hi : i < p.firstReturn) :
     (p.toList.take (i + 1)).count D < (p.toList.take (i + 1)).count U := by

@@ -304,10 +304,6 @@ theorem iSup_le_iff : iSup f ≤ a ↔ ∀ i, f i ≤ a :=
 theorem iSup₂_le_iff {f : ∀ i, κ i → α} : ⨆ (i) (j), f i j ≤ a ↔ ∀ i j, f i j ≤ a := by
   simp_rw [iSup_le_iff]
 
-@[to_dual lt_iInf_iff]
-theorem iSup_lt_iff : iSup f < a ↔ ∃ b, b < a ∧ ∀ i, f i ≤ b :=
-  ⟨fun h => ⟨iSup f, h, le_iSup f⟩, fun ⟨_, h, hb⟩ => (iSup_le hb).trans_lt h⟩
-
 @[to_dual]
 theorem sSup_eq_iSup {s : Set α} : sSup s = ⨆ a ∈ s, a :=
   le_antisymm (sSup_le le_iSup₂) (iSup₂_le fun _ => le_sSup)
@@ -494,7 +490,7 @@ theorem iSup_sup_eq : ⨆ x, f x ⊔ g x = (⨆ x, f x) ⊔ ⨆ x, g x :=
 @[to_dual]
 lemma Equiv.biSup_comp {ι ι' : Type*} {g : ι' → α} (e : ι ≃ ι') (s : Set ι') :
     ⨆ i ∈ e.symm '' s, g (e i) = ⨆ i ∈ s, g i := by
-  simpa only [iSup_subtype'] using (image e.symm s).symm.iSup_comp (g := g ∘ (↑))
+  simpa only [iSup_subtype'] using! (image e.symm s).symm.iSup_comp (g := g ∘ (↑))
 
 @[to_dual biInf_le]
 lemma le_biSup {ι : Type*} {s : Set ι} (f : ι → α) {i : ι} (hi : i ∈ s) : f i ≤ ⨆ i ∈ s, f i :=
@@ -738,7 +734,7 @@ theorem iSup_of_empty [IsEmpty ι] (f : ι → α) : iSup f = ⊥ :=
 
 @[to_dual]
 theorem isLUB_biSup {s : Set β} {f : β → α} : IsLUB (f '' s) (⨆ x ∈ s, f x) := by
-  simpa only [range_comp, Subtype.range_coe, iSup_subtype'] using
+  simpa only [range_comp, Subtype.range_coe, iSup_subtype'] using!
     @isLUB_iSup α s _ (f ∘ fun x => (x : β))
 
 @[to_dual]
@@ -818,10 +814,6 @@ end
 section CompleteLinearOrder
 
 variable [CompleteLinearOrder α]
-
-@[to_dual]
-theorem iSup_eq_top (f : ι → α) : iSup f = ⊤ ↔ ∀ b < ⊤, ∃ i, b < f i := by
-  simp only [← sSup_range, sSup_eq_top, Set.exists_range_iff]
 
 @[to_dual]
 lemma iSup₂_eq_top (f : ∀ i, κ i → α) : ⨆ i, ⨆ j, f i j = ⊤ ↔ ∀ b < ⊤, ∃ i j, b < f i j := by

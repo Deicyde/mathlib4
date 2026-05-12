@@ -71,7 +71,7 @@ instance HasOrthogonalProjection.map_linearIsometryEquiv [K.HasOrthogonalProject
   exists_orthogonal v := by
     rcases HasOrthogonalProjection.exists_orthogonal (K := K) (f.symm v) with ⟨w, hwK, hw⟩
     refine ⟨f w, Submodule.mem_map_of_mem hwK, Set.forall_mem_image.2 fun u hu ↦ ?_⟩
-    erw [← f.symm.inner_map_map, f.symm_apply_apply, map_sub, f.symm_apply_apply, hw u hu]
+    simp [← f.symm.inner_map_map, hw u hu]
 
 instance HasOrthogonalProjection.map_linearIsometryEquiv' [K.HasOrthogonalProjection]
     {E' : Type*} [NormedAddCommGroup E'] [InnerProductSpace 𝕜 E'] (f : E ≃ₗᵢ[𝕜] E') :
@@ -329,7 +329,7 @@ theorem starProjection_map_apply {E E' : Type*} [NormedAddCommGroup E]
     (p : Submodule 𝕜 E) [p.HasOrthogonalProjection] (x : E') :
     (p.map (f.toLinearEquiv : E →ₗ[𝕜] E')).starProjection x =
       f (p.starProjection (f.symm x)) := by
-  simpa only [f.coe_toLinearIsometry, f.apply_symm_apply] using
+  simpa only [f.coe_toLinearIsometry, f.apply_symm_apply] using!
     (f.toLinearIsometry.map_starProjection' p (f.symm x)).symm
 
 /-- The orthogonal projection onto the trivial submodule is the zero map. -/

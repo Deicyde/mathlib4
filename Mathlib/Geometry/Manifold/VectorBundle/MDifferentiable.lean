@@ -212,10 +212,9 @@ lemma MDifferentiableWithinAt.change_section_trivialization
     (he : f x₀ ∈ e.source) (he' : f x₀ ∈ e'.source) :
     MDiffAt[s] (fun x ↦ (e' (f x)).2) x₀ := by
   rw [Trivialization.mem_source] at he he'
-  refine (hf.coordChange he'f he he').congr_of_eventuallyEq ?_ ?_
-  · filter_upwards [hf.continuousWithinAt (e.open_baseSet.mem_nhds he)] with y hy
-    rw [Function.comp_apply, e.coordChange_apply_snd e' hy]
-  · rw [Function.comp_apply, e.coordChange_apply_snd _ he]
+  refine (hf.coordChange he'f he he').congr_of_eventuallyEq ?_ (by simp [he])
+  filter_upwards [hf.continuousWithinAt (e.open_baseSet.mem_nhds he)] with y hy
+  simp_all
 
 namespace Bundle.Trivialization
 
@@ -462,9 +461,9 @@ lemma MDifferentiableWithinAt.sum_section {ι : Type*} {s : Finset ι} {t : ι �
     MDiffAt[u] (T% (fun x ↦ ∑ i ∈ s, (t i x))) x₀ := by
   classical
   induction s using Finset.induction_on with
-  | empty => simpa using (contMDiffWithinAt_zeroSection 𝕜 E).mdifferentiableWithinAt one_ne_zero
+  | empty => simpa using! (contMDiffWithinAt_zeroSection 𝕜 E).mdifferentiableWithinAt one_ne_zero
   | insert i s hi h =>
-    simpa [Finset.sum_insert hi] using mdifferentiableWithinAt_add_section (hs i) h
+    simpa [Finset.sum_insert hi] using! mdifferentiableWithinAt_add_section (hs i) h
 
 lemma MDifferentiableAt.sum_section {ι : Type*} {s : Finset ι} {t : ι → (x : B) → E x} {x₀ : B}
     (hs : ∀ i, MDiffAt (T% (t i ·)) x₀) :

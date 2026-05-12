@@ -221,7 +221,7 @@ theorem finite_of_finiteIndex (P : Sylow p G) [P.FiniteIndex] : Finite (Sylow p 
   rw [QuotientGroup.ker_mk']
   exact P.isPGroup'.to_le P.normalCore_le
 
-open Pointwise
+open scoped Pointwise
 
 /-- `Subgroup.pointwiseMulAction` preserves Sylow subgroups. -/
 instance pointwiseMulAction {α : Type*} [Group α] [MulDistribMulAction α G] :
@@ -625,7 +625,7 @@ theorem exists_subgroup_card_pow_succ [Finite G] {p : ℕ} {n : ℕ} [hp : Fact 
     refine ⟨⟨y, le_normalizer hy⟩, ⟨0, ?_⟩, rfl⟩
     dsimp only
     rw [zpow_zero, eq_comm, QuotientGroup.eq_one_iff]
-    simpa using hy⟩
+    simpa using! hy⟩
 
 /-- If `H` is a subgroup of `G` of cardinality `p ^ n`,
   then `H` is contained in a subgroup of cardinality `p ^ m`

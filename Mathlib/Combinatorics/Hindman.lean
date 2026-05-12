@@ -203,7 +203,7 @@ theorem exists_FP_of_large {M} [Semigroup M] (U : Ultrafilter M) (U_idem : U * U
   | cons' b n h ih =>
     rintro p rfl
     have := Set.inter_subset_right (ih (succ p) ?_)
-    · simpa only using this
+    · simpa only using! this
     rw [Stream'.corec_eq, Stream'.tail_cons]
 
 /-- The strong form of **Hindman's theorem**: in any finite cover of an FP-set, one the parts
@@ -271,6 +271,9 @@ theorem FP.finsetProd {M} [CommMonoid M] (a : Stream' M) (s : Finset ℕ) (hs : 
     rw [hd, ← Stream'.drop_drop, add_comm]
     apply FP_drop_subset_FP
 
-@[deprecated (since := "2026-04-08")] alias FP.finset_prod := FP.finsetProd
+@[deprecated (since := "2026-04-08")] alias FS.finset_sum := FS.finsetSum
+
+@[to_additive existing, deprecated (since := "2026-04-08")]
+alias FP.finset_prod := FP.finsetProd
 
 end Hindman

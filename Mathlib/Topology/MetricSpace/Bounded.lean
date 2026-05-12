@@ -158,7 +158,7 @@ theorem hasAntitoneBasis_cobounded_compl_ball (c : α) :
 @[simp]
 theorem comap_dist_right_atTop (c : α) : comap (dist · c) atTop = cobounded α :=
   (atTop_basis.comap _).eq_of_same_basis <| by
-    simpa only [compl_def, mem_ball, not_lt] using hasBasis_cobounded_compl_ball c
+    simpa only [compl_def, mem_ball, not_lt] using! hasBasis_cobounded_compl_ball c
 
 @[simp]
 theorem comap_dist_left_atTop (c : α) : comap (dist c) atTop = cobounded α := by
@@ -555,7 +555,7 @@ theorem _root_.IsComplete.nonempty_iInter_of_nonempty_biInter {s : ℕ → Set �
     intro m n N hm hn
     exact dist_le_diam_of_mem (h's N) (I _ _ hm) (I _ _ hn)
   obtain ⟨x, -, xlim⟩ : ∃ x ∈ s 0, Tendsto (fun n : ℕ => u n) atTop (𝓝 x) :=
-    cauchySeq_tendsto_of_isComplete h0 (fun n => I 0 n (zero_le _)) this
+    cauchySeq_tendsto_of_isComplete h0 (fun n => I 0 n zero_le) this
   refine ⟨x, mem_iInter.2 fun n => ?_⟩
   apply (hs n).mem_of_tendsto xlim
   filter_upwards [Ici_mem_atTop n] with p hp

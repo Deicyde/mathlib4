@@ -143,7 +143,7 @@ lemma hom_ext {M N : SemimoduleCat.{v} R} {f g : M ⟶ N} (hf : f.hom = g.hom) :
 
 lemma hom_bijective {M N : SemimoduleCat.{v} R} :
     Function.Bijective (Hom.hom : (M ⟶ N) → (M →ₗ[R] N)) where
-  left f g h := by cases f; cases g; simpa using h
+  left f g h := by cases f; cases g; simpa using! h
   right f := ⟨⟨f⟩, rfl⟩
 
 /-- Convenience shortcut for `SemimoduleCat.hom_bijective.injective`. -/
@@ -273,8 +273,8 @@ in `SemimoduleCat` -/
 def linearEquivIsoModuleIsoₛ {X Y : Type u} [AddCommMonoid X] [AddCommMonoid Y] [Module R X]
     [Module R Y] : (X ≃ₗ[R] Y) ≅
       ((SemimoduleCat.of R X) ≅ (SemimoduleCat.of R Y)) where
-  hom := TypeCat.ofHom (fun e ↦ e.toModuleIsoₛ)
-  inv := TypeCat.ofHom (fun i ↦ i.toLinearEquivₛ)
+  hom := ↾fun e ↦ e.toModuleIsoₛ
+  inv := ↾fun i ↦ i.toLinearEquivₛ
 
 end
 

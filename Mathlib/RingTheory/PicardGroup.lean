@@ -140,7 +140,7 @@ theorem bijective_curry : Function.Bijective (curry e.toLinearMap) := by
       rTensorHom N ∘ₗ (ringLmapEquivSelf R R M).symm.toLinearMap := by
     rw [← LinearEquiv.toLinearMap_symm_comp_eq]; ext
     simp [LinearEquiv.congrLeft, LinearEquiv.congrRight, LinearEquiv.arrowCongrAddEquiv]
-  simpa [this] using (rTensorEquiv R M <| TensorProduct.comm R N M ≪≫ₗ e).bijective
+  simpa [this] using! (rTensorEquiv R M <| TensorProduct.comm R N M ≪≫ₗ e).bijective
 
 /-- Given `M ⊗[R] N ≃ₗ[R] R`, this is the induced isomorphism `M ≃ₗ[R] Nᵛ`. -/
 noncomputable def linearEquivDual : M ≃ₗ[R] Dual R N := .ofBijective _ (bijective_curry e)
@@ -568,7 +568,6 @@ theorem mapRingHom_mapRingHom {M : Pic R} :
     mapRingHom g (mapRingHom f M) = mapRingHom (g.comp f) M :=
   congr($mapRingHom_comp_mapRingHom M)
 
-set_option backward.isDefEq.respectTransparency false in
 theorem mapRingHom_id : mapRingHom (.id R) = .id _ := by
   rw [mapRingHom, mapAlgebra_self]
 
@@ -602,6 +601,7 @@ namespace Module.Invertible
 
 variable (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M] [Module.Invertible R M]
 
+set_option backward.defeqAttrib.useBackward true in
 -- TODO: generalize to CommSemiring by generalizing `CommRing.Pic.instSubsingletonOfIsLocalRing`
 theorem tensorProductComm_eq_refl : TensorProduct.comm R M M = .refl .. := by
   let f (P : Ideal R) [P.IsMaximal] := LocalizedModule.mkLinearMap P.primeCompl M
@@ -771,6 +771,7 @@ instance : Flat R (submoduleAlgebra e) := .of_linearEquiv (submoduleAlgebraEquiv
 instance [Module.Invertible R M] : Module.Invertible R (submoduleAlgebra e) :=
   .congr (submoduleAlgebraEquiv e).symm
 
+set_option backward.defeqAttrib.useBackward true in
 /-- When a flat `R`-module `M` is embedded as a submodule of a faithful `R`-algebra `A`,
 the multiplication map induces an isomorphism `A ⊗[R] M ≃ₗ[A] A`. -/
 noncomputable def tensorSubmoduleAlgebraEquiv : A ⊗[R] submoduleAlgebra e ≃ₗ[A] A :=
@@ -780,7 +781,7 @@ noncomputable def tensorSubmoduleAlgebraEquiv : A ⊗[R] submoduleAlgebra e ≃�
     refine x.induction_on (by simp) ?_ (by simp +contextual)
     intro a x
     obtain ⟨m, rfl⟩ := (submoduleAlgebraEquiv e).symm.surjective x
-    suffices a * toAlgebra e m = e (a ⊗ₜ[R] m) by simpa using this
+    suffices a * toAlgebra e m = e (a ⊗ₜ[R] m) by simpa using! this
     dsimp [toAlgebra]
     rw [map_one, ← smul_eq_mul, ← map_smul, smul_tmul', smul_eq_mul, mul_one]
 

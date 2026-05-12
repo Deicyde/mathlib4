@@ -8,7 +8,6 @@ module
 public import Mathlib.Analysis.Asymptotics.AsymptoticEquivalent
 public import Mathlib.Analysis.Normed.Group.Lemmas
 public import Mathlib.Analysis.Normed.Affine.Isometry
-public import Mathlib.Analysis.Normed.Operator.Compact
 public import Mathlib.Analysis.Normed.Operator.NormedSpace
 public import Mathlib.Analysis.Normed.Module.RieszLemma
 public import Mathlib.Analysis.Normed.Module.Ball.Pointwise
@@ -332,7 +331,7 @@ theorem opNNNorm_le {ι : Type*} [Fintype ι] (v : Basis ι 𝕜 E) {u : E →L[
 theorem opNorm_le {ι : Type*} [Fintype ι] (v : Basis ι 𝕜 E) {u : E →L[𝕜] F} {M : ℝ}
     (hM : 0 ≤ M) (hu : ∀ i, ‖u (v i)‖ ≤ M) :
     ‖u‖ ≤ Fintype.card ι • ‖v.equivFunL.toContinuousLinearMap‖ * M := by
-  simpa using NNReal.coe_le_coe.mpr (v.opNNNorm_le ⟨M, hM⟩ hu)
+  simpa using! NNReal.coe_le_coe.mpr (v.opNNNorm_le ⟨M, hM⟩ hu)
 
 /-- A weaker version of `Basis.opNNNorm_le` that abstracts away the value of `C`. -/
 theorem exists_opNNNorm_le {ι : Type*} [Finite ι] (v : Basis ι 𝕜 E) :
@@ -341,7 +340,7 @@ theorem exists_opNNNorm_le {ι : Type*} [Finite ι] (v : Basis ι 𝕜 E) :
   exact
     ⟨max (Fintype.card ι • ‖v.equivFunL.toContinuousLinearMap‖₊) 1,
       zero_lt_one.trans_le (le_max_right _ _), fun {u} M hu =>
-      (v.opNNNorm_le M hu).trans <| mul_le_mul_of_nonneg_right (le_max_left _ _) (zero_le M)⟩
+      (v.opNNNorm_le M hu).trans <| mul_le_mul_of_nonneg_right (le_max_left _ _) zero_le⟩
 
 /-- A weaker version of `Basis.opNorm_le` that abstracts away the value of `C`. -/
 theorem exists_opNorm_le {ι : Type*} [Finite ι] (v : Basis ι 𝕜 E) :
@@ -349,7 +348,7 @@ theorem exists_opNorm_le {ι : Type*} [Finite ι] (v : Basis ι 𝕜 E) :
   obtain ⟨C, hC, h⟩ := v.exists_opNNNorm_le (F := F)
   refine ⟨C, hC, ?_⟩
   intro u M hM H
-  simpa using h ⟨M, hM⟩ H
+  simpa using! h ⟨M, hM⟩ H
 
 end Module.Basis
 
@@ -488,23 +487,6 @@ lemma ProperSpace.of_locallyCompact_module (V : Type*) [AddCommGroup V] [Topolog
     have : IsClosedEmbedding L := isClosedEmbedding_smul_left hv
     apply IsClosedEmbedding.locallyCompactSpace this
   .of_locallyCompactSpace 𝕜
-
-variable {𝕜}
-
-theorem isCompactOperator_id_iff_finiteDimensional [LocallyCompactSpace 𝕜] :
-    IsCompactOperator (_root_.id : E → E) ↔ FiniteDimensional 𝕜 E :=
-  isCompactOperator_id_iff_locallyCompactSpace.trans
-    ⟨fun _ ↦ .of_locallyCompactSpace 𝕜, fun _ ↦ .of_finiteDimensional_of_complete 𝕜 E⟩
-
-/-- If the identity operator of a Banach space over a nontrivially normed field is compact,
-then the space is finite dimensional. -/
-lemma FiniteDimensional.of_isCompactOperator_id (h : IsCompactOperator (id : E → E)) :
-    FiniteDimensional 𝕜 E := by
-  have := LocallyCompactSpace.of_isCompactOperator_id h
-  exact FiniteDimensional.of_locallyCompactSpace 𝕜
-
-@[deprecated (since := "2026-03-05")] alias IsCompactOperator.finiteDimensional :=
-  FiniteDimensional.of_isCompactOperator_id
 
 end Riesz
 

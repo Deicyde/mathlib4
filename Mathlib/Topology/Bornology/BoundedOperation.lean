@@ -34,7 +34,7 @@ section bounded_sub
 ### Bounded subtraction
 -/
 
-open Pointwise
+open scoped Pointwise
 
 /-- A typeclass saying that `(p : R × R) ↦ p.1 - p.2` maps any product of bounded sets to a bounded
 set. This property automatically holds for seminormed additive groups, but it also holds, e.g.,
@@ -75,7 +75,8 @@ section bounded_mul
 ### Bounded multiplication and addition
 -/
 
-open Pointwise Set
+open scoped Pointwise
+open Set
 
 /-- A typeclass saying that `(p : R × R) ↦ p.1 + p.2` maps any product of bounded sets to a bounded
 set. This property follows from `LipschitzAdd`, and thus automatically holds, e.g., for seminormed
@@ -199,7 +200,7 @@ theorem tendsto_sub_const_cobounded (x : R) :
 @[simp]
 theorem tendsto_const_sub_cobounded (x : R) :
     Tendsto (x - ·) (cobounded R) (cobounded R) := by
-  simpa only [sub_eq_add_neg] using (tendsto_const_add_cobounded x).comp tendsto_neg_cobounded
+  simpa only [sub_eq_add_neg] using! (tendsto_const_add_cobounded x).comp tendsto_neg_cobounded
 
 end SeminormedAddCommGroup
 
