@@ -111,8 +111,8 @@ theorem range_d₁₀_eq_coinvariantsKer :
     induction y using Finsupp.induction generalizing x with
     | zero => simp [← hy]
     | single_add _ _ _ _ _ h =>
-      simpa! [← hy, add_sub_add_comm, sum_add_index, d₁₀_single (G := G)]
-        using Submodule.add_mem _ (Coinvariants.mem_ker_of_eq _ _ _ rfl) (h rfl)
+      simpa [← hy, add_sub_add_comm, sum_add_index, d₁₀_single (G := G)]
+        using! Submodule.add_mem _ (Coinvariants.mem_ker_of_eq _ _ _ rfl) (h rfl)
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
@@ -639,7 +639,7 @@ def cyclesOfIsCycle₁ (x : G →₀ A) (hx : IsCycle₁ x) :
 theorem isCycle₁_of_mem_cycles₁
     (x : G →₀ A) (hx : x ∈ cycles₁ (Rep.ofDistribMulAction k G A)) :
     IsCycle₁ x := by
-  simpa! using (mem_cycles₁_iff (A := Rep.ofDistribMulAction k G A) x).1 hx
+  simpa using! (mem_cycles₁_iff (A := Rep.ofDistribMulAction k G A) x).1 hx
 
 /-- Given a `k`-module `A` with a compatible `DistribMulAction` of `G`, and a finsupp
 `x : G →₀ A` satisfying the 1-boundary condition, produces a 1-boundary for the representation
@@ -1027,10 +1027,10 @@ def H1AddEquivOfIsTrivial :
         ext
         simp only [H1ToTensorOfIsTrivial, Iso.toLinearEquiv, AddMonoidHom.coe_comp,
           LinearMap.toAddMonoidHom_coe, LinearMap.coe_comp, AddMonoidHom.coe_toIntLinearMap]
-        -- todo: change this proof so that we don't need `change` and `simpa!` that both abuse defeq.
+        -- todo: change this proof so that we don't need `change` and `simpa` that both abuse defeq.
         change TensorProduct.lift _ (QuotientAddGroup.lift _ _ _ ((H1Iso A).hom _)) = _
-        simpa! [AddSubgroup.subtype, -π_comp_H1Iso_inv_apply, QuotientAddGroup.mk',
-          cycles₁IsoOfIsTrivial_inv_apply (A := A)] using (π_comp_H1Iso_inv_apply A _).symm)
+        simpa [AddSubgroup.subtype, -π_comp_H1Iso_inv_apply, QuotientAddGroup.mk',
+          cycles₁IsoOfIsTrivial_inv_apply (A := A)] using! (π_comp_H1Iso_inv_apply A _).symm)
 
 @[simp]
 lemma H1AddEquivOfIsTrivial_single (g : G) (a : A) :

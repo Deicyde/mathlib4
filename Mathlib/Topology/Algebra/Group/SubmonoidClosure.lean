@@ -42,8 +42,8 @@ theorem mapClusterPt_self_zpow_atTop_pow (x : G) (m : ℤ) :
   rw [← mapClusterPt_atTop_zpow_iff_pow]
   have H : MapClusterPt (x ^ m) (atTop.curry atTop) ↿(fun a b ↦ x ^ (m + b - a)) := by
     have : ContinuousAt (fun yz ↦ x ^ m * yz.2 / yz.1) (y, y) := by fun_prop
-    simpa! only [comp_def, ← zpow_sub, ← zpow_add, div_eq_mul_inv, Prod.map, mul_inv_cancel_right]
-      using (hy.curry_prodMap hy).continuousAt_comp this
+    simpa only [comp_def, ← zpow_sub, ← zpow_add, div_eq_mul_inv, Prod.map, mul_inv_cancel_right]
+      using! (hy.curry_prodMap hy).continuousAt_comp this
   suffices Tendsto ↿(fun a b ↦ m + b - a) (atTop.curry atTop) atTop from H.of_comp this
   refine Tendsto.curry <| .of_forall fun a ↦ ?_
   simp only [sub_eq_add_neg] -- TODO: add `Tendsto.atTop_sub_const` etc

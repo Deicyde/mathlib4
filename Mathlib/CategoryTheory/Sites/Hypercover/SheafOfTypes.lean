@@ -174,8 +174,8 @@ lemma IsStronglySheafFor.isSheafFor_sieve_of_pullback (h₁ : E.IsStronglySheafF
     simp only [op_comp, Functor.map_comp, comp_apply]
     congr! 1
     refine (H' k).ext fun W p hp ↦ ?_
-    simp only [← comp_apply, ← Functor.map_comp, ← op_comp, hs i (p ≫ E.p₁ k) (by simpa!),
-      hs j (p ≫ E.p₂ k) (by simpa! [← E.w])]
+    simp only [← comp_apply, ← Functor.map_comp, ← op_comp, hs i (p ≫ E.p₁ k) (by simpa),
+      hs j (p ≫ E.p₂ k) (by simpa [← E.w])]
     dsimp only [Presieve.FamilyOfElements.pullback]
     congr 1
     simp [E.w]
@@ -187,7 +187,7 @@ lemma IsStronglySheafFor.isSheafFor_sieve_of_pullback (h₁ : E.IsStronglySheafF
     have : t (g ≫ f) (by simp [hf]) = t (w ≫ E.f i) (by simp [heq, hf]) := by
       congr 1
       rw [heq]
-    simpa! [← heq, ht' i, ← t.comp_of_compatible _ ht, this] using hs i w _
+    simpa [← heq, ht' i, ← t.comp_of_compatible _ ht, this] using! hs i w _
   · refine hunique _ fun i ↦ huniq _ _ fun Z g hg ↦ ?_
     simp [Presieve.FamilyOfElements.pullback, ← hy _ hg]
 

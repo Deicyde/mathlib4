@@ -207,13 +207,13 @@ def coneEquivFunctorObj (c : Cone ((diagram U).op ⋙ F)) :
         · dsimp
           ext ij
           rcases ij with ⟨i, j⟩
-          simpa! [SheafConditionEqualizerProducts.leftRes]
-            using c.π.naturality (Quiver.Hom.op (Hom.left i j))
+          simpa [SheafConditionEqualizerProducts.leftRes]
+            using! c.π.naturality (Quiver.Hom.op (Hom.left i j))
         · dsimp
           ext ij
           rcases ij with ⟨i, j⟩
-          simpa! [SheafConditionEqualizerProducts.rightRes]
-            using c.π.naturality (Quiver.Hom.op (Hom.right i j))
+          simpa [SheafConditionEqualizerProducts.rightRes]
+            using! c.π.naturality (Quiver.Hom.op (Hom.right i j))
         · dsimp
           ext
           simp }

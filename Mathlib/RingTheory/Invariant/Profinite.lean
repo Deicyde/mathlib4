@@ -69,8 +69,8 @@ lemma Algebra.IsInvariant.exists_smul_of_under_eq_of_profinite
       have h : B' N'.1.1 ≤ B' N.1.1 := fun x hx n ↦ hx ⟨_, f.le n.2⟩
       obtain ⟨x, hx⟩ := x
       obtain ⟨x, rfl⟩ := QuotientGroup.mk_surjective x
-      simpa! only [Ideal.comap_comap, Ideal.pointwise_smul_eq_comap, ← Ideal.comap_coe
-        (F := RingEquiv _ _)] using congr(Ideal.comap (Subalgebra.inclusion h).toRingHom $hx)⟩
+      simpa only [Ideal.comap_comap, Ideal.pointwise_smul_eq_comap, ← Ideal.comap_coe
+        (F := RingEquiv _ _)] using! congr(Ideal.comap (Subalgebra.inclusion h).toRingHom $hx)⟩
     map_id N := by ext ⟨⟨x⟩, hx⟩; rfl
     map_comp f g := by ext ⟨⟨x⟩, hx⟩; rfl }
   have (N : _) : Nonempty (F.obj N) := by
@@ -120,8 +120,8 @@ lemma Ideal.Quotient.stabilizerHomSurjectiveAuxFunctor_aux
     fun x hx n ↦ hx ⟨_, e n.2⟩
   obtain ⟨x, rfl⟩ := QuotientGroup.mk_surjective x
   replace hx := congr(Ideal.comap (Subalgebra.inclusion h) $hx)
-  simpa! only [Ideal.pointwise_smul_eq_comap,
-    ← Ideal.comap_coe (F := RingEquiv _ _), Ideal.comap_comap] using hx
+  simpa only [Ideal.pointwise_smul_eq_comap,
+    ← Ideal.comap_coe (F := RingEquiv _ _), Ideal.comap_comap] using! hx
 
 /-- (Implementation)
 The functor taking an open normal subgroup `N ≤ G` to the set of lifts of `σ` in `G ⧸ N`.

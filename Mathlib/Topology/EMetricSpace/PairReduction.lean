@@ -335,12 +335,12 @@ lemma card_pairSetSeq_le_logSizeRadius_mul (hJ : J.Nonempty) (i : ℕ) (ha : 1 <
     * a ^ (logSizeBallSeq J hJ a c i).radius := by
   induction i with
   | zero =>
-    simpa! [pairSetSeq, hJ, finset_logSizeBallSeq_zero, logSizeBallStruct.ball,
-      radius_logSizeBallSeq_zero] using card_le_logSizeRadius_le_pow_logSizeRadius ha
+    simpa [pairSetSeq, hJ, finset_logSizeBallSeq_zero, logSizeBallStruct.ball,
+      radius_logSizeBallSeq_zero] using! card_le_logSizeRadius_le_pow_logSizeRadius ha
   | succ i ih =>
     by_cases! h : (logSizeBallSeq J hJ a c (i + 1)).finset.Nonempty
-    · simpa! [pairSetSeq, logSizeBallStruct.ball, h, hJ]
-        using card_le_logSizeRadius_le_pow_logSizeRadius ha
+    · simpa [pairSetSeq, logSizeBallStruct.ball, h, hJ]
+        using! card_le_logSizeRadius_le_pow_logSizeRadius ha
     simp [pairSetSeq, logSizeBallStruct.ball, h, hJ]
 
 lemma logSizeRadius_le_card_smallBall (hJ : J.Nonempty) (i : ℕ) (ha : 1 < a) :
@@ -348,12 +348,12 @@ lemma logSizeRadius_le_card_smallBall (hJ : J.Nonempty) (i : ℕ) (ha : 1 < a) :
     a ^ ((logSizeBallSeq J hJ a c i).radius - 1) ≤ #((logSizeBallSeq J hJ a c i).smallBall c) := by
   match i with
   | 0 =>
-    simpa! [finset_logSizeBallSeq_zero, hJ, logSizeBallStruct.smallBall, radius_logSizeBallSeq_zero]
-      using pow_logSizeRadius_le_card_le_logSizeRadius ha (Exists.choose_spec hJ)
+    simpa [finset_logSizeBallSeq_zero, hJ, logSizeBallStruct.smallBall, radius_logSizeBallSeq_zero]
+      using! pow_logSizeRadius_le_card_le_logSizeRadius ha (Exists.choose_spec hJ)
   | i + 1 =>
     by_cases! h : (logSizeBallSeq J hJ a c (i + 1)).finset.Nonempty
-    · simpa! [h, logSizeBallStruct.smallBall, radius_logSizeBallSeq_add_one]
-        using pow_logSizeRadius_le_card_le_logSizeRadius ha (point_mem_finset_logSizeBallSeq hJ _ h)
+    · simpa [h, logSizeBallStruct.smallBall, radius_logSizeBallSeq_add_one]
+        using! pow_logSizeRadius_le_card_le_logSizeRadius ha (point_mem_finset_logSizeBallSeq hJ _ h)
     simp [h]
 
 lemma card_pairSet_le (ha : 1 < a) : #(pairSet J a c) ≤ a * #J := by

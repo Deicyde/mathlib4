@@ -195,7 +195,7 @@ instance (priority := 100) isTopologicalGroup (B : GroupFilterBasis G) :
   have basis' := basis.prod basis
   refine IsTopologicalGroup.of_nhds_one ?_ ?_ ?_ ?_
   · rw [basis'.tendsto_iff basis]
-    suffices ∀ U ∈ B, ∃ V W, (V ∈ B ∧ W ∈ B) ∧ ∀ a b, a ∈ V → b ∈ W → a * b ∈ U by simpa!
+    suffices ∀ U ∈ B, ∃ V W, (V ∈ B ∧ W ∈ B) ∧ ∀ a b, a ∈ V → b ∈ W → a * b ∈ U by simpa
     intro U U_in
     rcases mul U_in with ⟨V, V_in, hV⟩
     refine ⟨V, V, ⟨V_in, V_in⟩, ?_⟩
@@ -203,7 +203,7 @@ instance (priority := 100) isTopologicalGroup (B : GroupFilterBasis G) :
     exact hV <| mul_mem_mul a_in b_in
   · rw [basis.tendsto_iff basis]
     intro U U_in
-    simpa! using inv U_in
+    simpa using! inv U_in
   · intro x₀
     rw [nhds_eq, nhds_one_eq]
     rfl
@@ -224,7 +224,7 @@ lemma t2Space_iff_sInter_subset [t : TopologicalSpace G] (F : GroupFilterBasis G
     (hG : F.topology = t) : T2Space G ↔ ⋂₀ F.sets ⊆ {1} := by
   rw [F.t2Space_iff hG, subset_antisymm_iff, and_iff_left_iff_imp]
   rintro -
-  simpa! using fun _ ↦ F.one
+  simpa using! fun _ ↦ F.one
 
 end GroupFilterBasis
 
@@ -270,7 +270,7 @@ instance (priority := 100) isTopologicalRing {R : Type u} [Ring R] (B : RingFilt
   haveI := B'.isTopologicalAddGroup
   apply IsTopologicalRing.of_addGroup_of_nhds_zero
   · rw [basis'.tendsto_iff basis]
-    suffices ∀ U ∈ B', ∃ V W, (V ∈ B' ∧ W ∈ B') ∧ ∀ a b, a ∈ V → b ∈ W → a * b ∈ U by simpa!
+    suffices ∀ U ∈ B', ∃ V W, (V ∈ B' ∧ W ∈ B') ∧ ∀ a b, a ∈ V → b ∈ W → a * b ∈ U by simpa
     intro U U_in
     rcases B.mul U_in with ⟨V, V_in, hV⟩
     refine ⟨V, V, ⟨V_in, V_in⟩, ?_⟩
@@ -279,11 +279,11 @@ instance (priority := 100) isTopologicalRing {R : Type u} [Ring R] (B : RingFilt
   · intro x₀
     rw [basis.tendsto_iff basis]
     intro U
-    simpa! using B.mul_left x₀
+    simpa using! B.mul_left x₀
   · intro x₀
     rw [basis.tendsto_iff basis]
     intro U
-    simpa! using B.mul_right x₀
+    simpa using! B.mul_right x₀
 
 end RingFilterBasis
 
@@ -388,8 +388,8 @@ instance (priority := 100) continuousSMul [IsTopologicalRing R] :
   let _ := B'.topology
   have _ := B'.isTopologicalAddGroup
   exact ContinuousSMul.of_basis_zero B'.nhds_zero_hasBasis
-      (fun {_} => by simpa! using B.smul)
-      (by simpa! using B.smul_left) B.smul_right
+      (fun {_} => by simpa using! B.smul)
+      (by simpa using! B.smul_left) B.smul_right
 
 /-- Build a module filter basis from compatible ring and additive group filter bases. -/
 def ofBases {R M : Type*} [CommRing R] [AddCommGroup M] [Module R M] (BR : RingFilterBasis R)

@@ -83,8 +83,8 @@ def monoidalOppositeLeftAction [MonoidalRightAction C D] :
   rightUnitor_actionHom c d :=
     MonoidalRightAction.actionHom_leftUnitor _ _
   associator_actionHom c₁ c₂ c₃ d := by
-    simpa! only [mop_tensorObj, mop_hom_associator,
-      MonoidalRightAction.actionHomRight_inv_hom_assoc] using
+    simpa only [mop_tensorObj, mop_hom_associator,
+      MonoidalRightAction.actionHomRight_inv_hom_assoc] using!
       (d ⊴ᵣ (α_ (unmop c₃) (unmop c₂) (unmop c₁)).inv) ≫=
         MonoidalRightAction.actionHom_associator
           (unmop c₃) (unmop c₂) (unmop c₁) d |>.symm
@@ -295,8 +295,8 @@ def monoidalOppositeRightAction [MonoidalLeftAction C D] :
   actionUnitIso_hom_naturality _ :=
     MonoidalLeftAction.actionUnitIso_hom_naturality _
   actionHom_associator c₁ c₂ c₃ d := by
-    simpa! only [mop_tensorObj, mop_hom_associator,
-      MonoidalLeftAction.inv_hom_actionHomLeft_assoc] using
+    simpa only [mop_tensorObj, mop_hom_associator,
+      MonoidalLeftAction.inv_hom_actionHomLeft_assoc] using!
       (α_ (unmop c₃) (unmop c₂) (unmop c₁)).inv ⊵ₗ d ≫=
         MonoidalLeftAction.associator_actionHom
           (unmop c₃) (unmop c₂) (unmop c₁) d |>.symm

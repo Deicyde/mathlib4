@@ -335,8 +335,8 @@ def Submodule.IsFullyInvariant (N : Submodule R M) : Prop :=
   ∀ f : Module.End R M, N ≤ N.comap f
 
 theorem isFullyInvariant_iff_isTwoSided {I : Ideal R} : I.IsFullyInvariant ↔ I.IsTwoSided := by
-  simpa! only [Submodule.IsFullyInvariant, ← MulOpposite.opEquiv.trans (RingEquiv.moduleEndSelf R
-    |>.toEquiv) |>.forall_congr_right, SetLike.le_def, I.isTwoSided_iff] using forall_comm
+  simpa only [Submodule.IsFullyInvariant, ← MulOpposite.opEquiv.trans (RingEquiv.moduleEndSelf R
+    |>.toEquiv) |>.forall_congr_right, SetLike.le_def, I.isTwoSided_iff] using! forall_comm
 
 variable (R M) in
 /-- The fully invariant submodules of a module form a complete sublattice in the lattice of

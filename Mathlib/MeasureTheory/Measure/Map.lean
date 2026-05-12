@@ -80,8 +80,8 @@ def mapₗ [MeasurableSpace α] [MeasurableSpace β] (f : α → β) : Measure �
 theorem mapₗ_congr {f g : α → β} (hf : Measurable f) (hg : Measurable g) (h : f =ᵐ[μ] g) :
     mapₗ f μ = mapₗ g μ := by
   ext1 s hs
-  simpa! only [mapₗ, hf, hg, hs, dif_pos, liftLinear_apply, OuterMeasure.map_apply]
-    using measure_congr (h.preimage s)
+  simpa only [mapₗ, hf, hg, hs, dif_pos, liftLinear_apply, OuterMeasure.map_apply]
+    using! measure_congr (h.preimage s)
 
 open Classical in
 /-- The pushforward of a measure. It is defined to be `0` if `f` is not an almost everywhere

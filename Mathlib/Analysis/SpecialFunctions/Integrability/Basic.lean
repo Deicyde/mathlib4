@@ -240,7 +240,7 @@ theorem intervalIntegrable_log' : IntervalIntegrable log volume a b := by
     · exact (continuous_mul_log.continuousOn.sub continuous_id.continuousOn).neg
     · intro s ⟨hs, _⟩
       norm_num at *
-      simpa! using (hasDerivAt_id s).sub (hasDerivAt_mul_log hs.ne.symm)
+      simpa using! (hasDerivAt_id s).sub (hasDerivAt_mul_log hs.ne.symm)
     · intro s ⟨hs₁, hs₂⟩
       simp at *
       exact (log_nonpos_iff hs₁.le).mpr hs₂.le
@@ -248,7 +248,7 @@ theorem intervalIntegrable_log' : IntervalIntegrable log volume a b := by
     apply ContinuousOn.intervalIntegrable
     apply Real.continuousOn_log.mono
     apply Set.notMem_uIcc_of_lt zero_lt_one at hx
-    simpa!
+    simpa
 
 theorem intervalIntegrable_one_div_one_add_sq :
     IntervalIntegrable (fun x : ℝ => 1 / (↑1 + x ^ 2)) μ a b := by

@@ -218,7 +218,7 @@ variable [WellFoundedLT α]
 @[to_dual]
 lemma exists_minimalFor_of_wellFoundedLT (P : ι → Prop) (f : ι → α) (hP : ∃ i, P i) :
     ∃ i, MinimalFor P f i := by
-  simpa! [not_lt_iff_le_imp_ge, InvImage] using (instIsWellFoundedInvImage (· < ·) f).wf.has_min _ hP
+  simpa [not_lt_iff_le_imp_ge, InvImage] using! (instIsWellFoundedInvImage (· < ·) f).wf.has_min _ hP
 
 @[to_dual]
 lemma exists_minimal_of_wellFoundedLT (P : α → Prop) (hP : ∃ a, P a) : ∃ a, Minimal P a :=
@@ -520,8 +520,8 @@ theorem image_setOf_minimal (f : α ≃o β) (P : α → Prop) :
 @[to_dual]
 theorem map_minimal_mem (f : s ≃o t) (hx : Minimal (· ∈ s) x) :
     Minimal (· ∈ t) (f ⟨x, hx.prop⟩) := by
-  simpa! only [show t = range (Subtype.val ∘ f) by simp, mem_univ, minimal_true_subtype, hx,
-    true_imp_iff, image_univ] using OrderEmbedding.minimal_mem_image
+  simpa only [show t = range (Subtype.val ∘ f) by simp, mem_univ, minimal_true_subtype, hx,
+    true_imp_iff, image_univ] using! OrderEmbedding.minimal_mem_image
     (f.toOrderEmbedding.trans (OrderEmbedding.subtype (· ∈ t))) (s := univ) (x := ⟨x, hx.prop⟩)
 
 /-- If two sets are order isomorphic, their minimals are also order isomorphic. -/

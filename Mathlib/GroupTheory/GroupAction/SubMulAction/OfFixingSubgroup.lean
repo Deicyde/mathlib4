@@ -125,7 +125,7 @@ def ofFixingSubgroup_equivariantMap :
 theorem ofFixingSubgroup_equivariantMap_injective :
     Injective (ofFixingSubgroup_equivariantMap M s) := by
   rintro ⟨x, hx⟩ ⟨y, hy⟩ hxy
-  simpa! [Subtype.mk.injEq] using hxy
+  simpa [Subtype.mk.injEq] using! hxy
 
 section Comparisons
 
@@ -365,7 +365,7 @@ theorem map_ofFixingSubgroupUnion_bijective :
     Bijective (map_ofFixingSubgroupUnion M s t) := by
   constructor
   · intro a b h
-    simpa! only [← SetLike.coe_eq_coe] using h
+    simpa only [← SetLike.coe_eq_coe] using! h
   · rintro ⟨⟨a, ha⟩, ha'⟩
     suffices a ∈ ofFixingSubgroup M (s ∪ t) by
       exact ⟨⟨a, this⟩,  rfl⟩
@@ -373,7 +373,7 @@ theorem map_ofFixingSubgroupUnion_bijective :
     rcases (Set.mem_union a s t).mp hy with h | h
     · exact ha h
     · apply ha'
-      simpa! only [Set.mem_preimage]
+      simpa only [Set.mem_preimage]
 
 variable (M) in
 /-- The equivariant map on `SubMulAction.ofFixingSubgroup` given a set inclusion. -/

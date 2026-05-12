@@ -301,8 +301,8 @@ lemma rotateHomotopyEquiv_comm₂ :
     (HomotopyCategory.quotient _ _).map (triangle φ).mor₃ ≫
       (HomotopyCategory.quotient _ _).map (rotateHomotopyEquiv φ).hom =
       (HomotopyCategory.quotient _ _).map (inr (inr φ)) := by
-  simpa! only [Functor.map_comp]
-    using HomotopyCategory.eq_of_homotopy _ _ (rotateHomotopyEquivComm₂Homotopy φ)
+  simpa only [Functor.map_comp]
+    using! HomotopyCategory.eq_of_homotopy _ _ (rotateHomotopyEquivComm₂Homotopy φ)
 
 set_option backward.isDefEq.respectTransparency false in
 @[reassoc (attr := simp)]

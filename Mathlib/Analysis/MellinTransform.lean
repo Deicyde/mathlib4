@@ -48,7 +48,7 @@ def MellinConvergent (f : ℝ → E) (s : ℂ) : Prop :=
 theorem MellinConvergent.const_smul {f : ℝ → E} {s : ℂ} (hf : MellinConvergent f s) {𝕜 : Type*}
     [NormedAddCommGroup 𝕜] [SMulZeroClass 𝕜 E] [IsBoundedSMul 𝕜 E] [SMulCommClass ℂ 𝕜 E] (c : 𝕜) :
     MellinConvergent (fun t => c • f t) s := by
-  simpa! only [MellinConvergent, smul_comm] using hf.smul c
+  simpa only [MellinConvergent, smul_comm] using! hf.smul c
 
 theorem MellinConvergent.cpow_smul {f : ℝ → E} {s a : ℂ} :
     MellinConvergent (fun t => (t : ℂ) ^ a • f t) s ↔ MellinConvergent f (s + a) := by
@@ -57,7 +57,7 @@ theorem MellinConvergent.cpow_smul {f : ℝ → E} {s a : ℂ} :
 
 nonrec theorem MellinConvergent.div_const {f : ℝ → ℂ} {s : ℂ} (hf : MellinConvergent f s) (a : ℂ) :
     MellinConvergent (fun t => f t / a) s := by
-  simpa! only [MellinConvergent, smul_eq_mul, ← mul_div_assoc] using hf.div_const a
+  simpa only [MellinConvergent, smul_eq_mul, ← mul_div_assoc] using! hf.div_const a
 
 theorem MellinConvergent.comp_mul_left {f : ℝ → E} {s : ℂ} {a : ℝ} (ha : 0 < a) :
     MellinConvergent (fun t => f (a * t)) s ↔ MellinConvergent f s := by
@@ -162,13 +162,13 @@ def HasMellin (f : ℝ → E) (s : ℂ) (m : E) : Prop :=
 
 theorem hasMellin_add {f g : ℝ → E} {s : ℂ} (hf : MellinConvergent f s)
     (hg : MellinConvergent g s) : HasMellin (fun t => f t + g t) s (mellin f s + mellin g s) :=
-  ⟨by simpa! only [MellinConvergent, smul_add] using hf.add hg, by
-    simpa! only [mellin, smul_add] using integral_add hf hg⟩
+  ⟨by simpa only [MellinConvergent, smul_add] using! hf.add hg, by
+    simpa only [mellin, smul_add] using! integral_add hf hg⟩
 
 theorem hasMellin_sub {f g : ℝ → E} {s : ℂ} (hf : MellinConvergent f s)
     (hg : MellinConvergent g s) : HasMellin (fun t => f t - g t) s (mellin f s - mellin g s) :=
-  ⟨by simpa! only [MellinConvergent, smul_sub] using hf.sub hg, by
-    simpa! only [mellin, smul_sub] using integral_sub hf hg⟩
+  ⟨by simpa only [MellinConvergent, smul_sub] using! hf.sub hg, by
+    simpa only [mellin, smul_sub] using! integral_sub hf hg⟩
 
 theorem hasMellin_const_smul {f : ℝ → E} {s : ℂ} (hf : MellinConvergent f s)
     {R : Type*} [NormedRing R] [Module R E] [IsBoundedSMul R E] [SMulCommClass ℂ R E] (c : R) :
@@ -393,7 +393,7 @@ theorem mellin_hasDerivAt_of_isBigO_rpow [NormedSpace ℂ E] {a b : ℝ}
     exact u1.smul_const (f t)
   have main :=
     hasDerivAt_integral_of_dominated_loc_of_deriv_le (Metric.ball_mem_nhds _ hv0) h1 h2 h3 h4 h5 h6
-  simpa! only [F', mul_smul] using main
+  simpa only [F', mul_smul] using! main
 
 /-- Suppose `f` is locally integrable on `(0, ∞)`, is `O(x ^ (-a))` as `x → ∞`, and is
 `O(x ^ (-b))` as `x → 0`. Then its Mellin transform is differentiable on the domain `b < re s < a`.
@@ -438,7 +438,7 @@ section MellinIoc
 theorem hasMellin_one_Ioc {s : ℂ} (hs : 0 < re s) :
     HasMellin (indicator (Ioc 0 1) (fun _ => 1 : ℝ → ℂ)) s (1 / s) := by
   have aux1 : -1 < (s - 1).re := by
-    simpa! only [sub_re, one_re, sub_eq_add_neg] using lt_add_of_pos_left _ hs
+    simpa only [sub_re, one_re, sub_eq_add_neg] using! lt_add_of_pos_left _ hs
   have aux2 : s ≠ 0 := by contrapose! hs; rw [hs, zero_re]
   have aux3 : MeasurableSet (Ioc (0 : ℝ) 1) := measurableSet_Ioc
   simp_rw [HasMellin, mellin, MellinConvergent, ← indicator_smul, IntegrableOn,

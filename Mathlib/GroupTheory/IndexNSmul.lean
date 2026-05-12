@@ -53,8 +53,8 @@ and finitely generated as a `ℤ`-module is `n ^ finrank ℤ S`. -/
 lemma relIndex_map_nsmul (n : ℕ) (S : AddSubgroup M) [Free ℤ ↥S.toIntSubmodule]
     [Module.Finite ℤ ↥S.toIntSubmodule] :
     (S.map (nsmulAddMonoidHom (α := M) n)).relIndex S = n ^ finrank ℤ S := by
-  simpa! only [relIndex, addSubgroupOf_map_nsmulAddMonoidHom_eq_range]
-    using index_range_nsmul S.toIntSubmodule n
+  simpa only [relIndex, addSubgroupOf_map_nsmulAddMonoidHom_eq_range]
+    using! index_range_nsmul S.toIntSubmodule n
 
 /-- On an additive group that is torsion-free as a `ℤ`-module, the linear map given by
 multiplication by `n : ℕ` is injective (when `n ≠ 0`). -/

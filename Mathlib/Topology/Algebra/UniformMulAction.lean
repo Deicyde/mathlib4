@@ -99,8 +99,8 @@ lemma IsUniformInducing.uniformContinuousConstSMul [SMul M Y] [UniformContinuous
     {f : X → Y} (hf : IsUniformInducing f) (hsmul : ∀ (c : M) x, f (c • x) = c • f x) :
     UniformContinuousConstSMul M X where
   uniformContinuous_const_smul c := by
-    simpa! only [hf.uniformContinuous_iff, Function.comp_def, hsmul]
-      using hf.uniformContinuous.const_smul c
+    simpa only [hf.uniformContinuous_iff, Function.comp_def, hsmul]
+      using! hf.uniformContinuous.const_smul c
 
 /-- If a scalar action is central, then its right action is uniform continuous when its left action
 is. -/

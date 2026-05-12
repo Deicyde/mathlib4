@@ -384,9 +384,9 @@ theorem piiUnionInter_singleton (π : ι → Set (Set α)) (i : ι) :
         rwa [hx]
       · simp only [Finset.mem_singleton, iInter_iInter_eq_left]
     · refine ⟨∅, ?_⟩
-      simpa! only [Finset.coe_empty, subset_singleton_iff, mem_empty_iff_false, IsEmpty.forall_iff,
+      simpa only [Finset.coe_empty, subset_singleton_iff, mem_empty_iff_false, IsEmpty.forall_iff,
         imp_true_iff, Finset.notMem_empty, iInter_false, iInter_univ, true_and,
-        exists_const] using hs
+        exists_const] using! hs
 
 theorem piiUnionInter_singleton_left (s : ι → Set α) (S : Set ι) :
     piiUnionInter (fun i => ({s i} : Set (Set α))) S =

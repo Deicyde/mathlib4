@@ -350,8 +350,8 @@ namespace BoundedContinuousFunction
 
 theorem toLp_denseRange [μ.WeaklyRegular] [IsFiniteMeasure μ] (hp : p ≠ ∞) :
     DenseRange (toLp p μ 𝕜 : (α →ᵇ E) →L[𝕜] Lp E p μ) := by
-  simpa! only [← range_toLp p μ (𝕜 := 𝕜)]
-    using MeasureTheory.Lp.boundedContinuousFunction_dense E μ hp
+  simpa only [← range_toLp p μ (𝕜 := 𝕜)]
+    using! MeasureTheory.Lp.boundedContinuousFunction_dense E μ hp
 
 end BoundedContinuousFunction
 

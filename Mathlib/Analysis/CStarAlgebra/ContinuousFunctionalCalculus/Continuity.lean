@@ -180,9 +180,9 @@ lemma lipschitzOnWith_cfc_fun_of_subset (a : A) {s : Set R} (hs : spectrum R a �
     LipschitzOnWith 1 (fun f ↦ cfc (toFun {s} f) a)
       {f | ContinuousOn (toFun {s} f) (s)} := by
   have h₁ := lipschitzOnWith_cfc_fun R a
-  have h₂ := lipschitzWith_one_ofFun_toFun' (𝔖 := {spectrum R a}) (𝔗 := {s}) (β := R) (by simpa!)
+  have h₂ := lipschitzWith_one_ofFun_toFun' (𝔖 := {spectrum R a}) (𝔗 := {s}) (β := R) (by simpa)
   have h₃ := h₂.lipschitzOnWith (s := {f | ContinuousOn (toFun {s} f) (s)})
-  simpa! using h₁.comp h₃ (fun f hf ↦ hf.mono hs)
+  simpa using! h₁.comp h₃ (fun f hf ↦ hf.mono hs)
 
 end Isometric
 
@@ -207,15 +207,15 @@ theorem continuous_cfcHomSuperset_left
   induction f using ContinuousMap.induction_on_of_compact with
   | const r =>
     have : ContinuousMap.const s r = algebraMap 𝕜 C(s, 𝕜) r := rfl
-    simpa! only [this, AlgHomClass.commutes] using continuous_const
+    simpa only [this, AlgHomClass.commutes] using! continuous_const
   | id =>
     simp only [cfcHomSuperset_id]
     fun_prop
   | star_id =>
     simp only [map_star, cfcHomSuperset_id]
     fun_prop
-  | add f g hf hg => simpa! using hf.add hg
-  | mul f g hf hg => simpa! using hf.mul hg
+  | add f g hf hg => simpa using! hf.add hg
+  | mul f g hf hg => simpa using! hf.mul hg
   | frequently f hf =>
     apply continuous_of_uniform_approx_of_continuous
     rw [Metric.uniformity_basis_dist_le.forall_iff (by aesop)]
@@ -683,9 +683,9 @@ lemma lipschitzOnWith_cfcₙ_fun_of_subset (a : A) {s : Set R} (hs : quasispectr
     LipschitzOnWith 1 (fun f ↦ cfcₙ (toFun {s} f) a)
       {f | ContinuousOn (toFun {s} f) (s) ∧ f 0 = 0} := by
   have h₂ := lipschitzWith_one_ofFun_toFun' (𝔖 := {quasispectrum R a}) (𝔗 := {s}) (β := R)
-    (by simpa!)
+    (by simpa)
   have h₃ := h₂.lipschitzOnWith (s := {f | ContinuousOn (toFun {s} f) (s) ∧ f 0 = 0})
-  simpa! using lipschitzOnWith_cfcₙ_fun R a |>.comp h₃ (fun f ↦ .imp_left fun hf ↦ hf.mono hs)
+  simpa using! lipschitzOnWith_cfcₙ_fun R a |>.comp h₃ (fun f ↦ .imp_left fun hf ↦ hf.mono hs)
 
 end Isometric
 
@@ -708,12 +708,12 @@ theorem continuous_cfcₙHomSuperset_left
     Continuous (fun x ↦ cfcₙHomSuperset (ha' x) (ha x) f) := by
   have : CompactSpace s := by rwa [isCompact_iff_compactSpace] at hs
   induction f using ContinuousMapZero.induction_on_of_compact with
-  | zero => simpa! [map_zero] using continuous_const
-  | id => simpa! only [cfcₙHomSuperset_id]
+  | zero => simpa [map_zero] using! continuous_const
+  | id => simpa only [cfcₙHomSuperset_id]
   | star_id => simp only [map_star, cfcₙHomSuperset_id]; fun_prop
-  | add f g hf hg => simpa! only [map_add] using hf.add hg
-  | mul f g hf hg => simpa! only [map_mul] using hf.mul hg
-  | smul r f hf => simpa! only [map_smul] using hf.const_smul r
+  | add f g hf hg => simpa only [map_add] using! hf.add hg
+  | mul f g hf hg => simpa only [map_mul] using! hf.mul hg
+  | smul r f hf => simpa only [map_smul] using! hf.const_smul r
   | frequently f hf =>
     apply continuous_of_uniform_approx_of_continuous
     rw [Metric.uniformity_basis_dist_le.forall_iff (by aesop)]

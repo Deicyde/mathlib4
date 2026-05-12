@@ -192,8 +192,8 @@ noncomputable def coinvariantsTensorIndHom :
   ModuleCat.ofHom <| Coinvariants.lift _ (TensorProduct.lift <| Coinvariants.lift _
     (TensorProduct.lift <| Finsupp.lift _ _ _ <| fun g ↦
       (coinvariantsTensorMk A (res φ B)).compl₂ (B.ρ g))
-      fun g ↦ by ext; simpa! [coinvariantsTensorMk, Coinvariants.mk_eq_iff]
-        using Coinvariants.sub_mem_ker _ _) fun _ ↦ by
+      fun g ↦ by ext; simpa [coinvariantsTensorMk, Coinvariants.mk_eq_iff]
+        using! Coinvariants.sub_mem_ker _ _) fun _ ↦ by
     simp only [MonoidalCategory.curriedTensor_obj_obj, tensor_V, tensor_ρ, res_obj_ρ,
       Functor.postcompose₂_obj_obj_obj_obj, coinvariantsFunctor_obj_carrier,
       tprod_apply, ind_apply]
