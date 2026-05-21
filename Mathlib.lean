@@ -1700,6 +1700,8 @@ public import Mathlib.Analysis.Calculus.ContDiff.Basic
 public import Mathlib.Analysis.Calculus.ContDiff.Bounds
 public import Mathlib.Analysis.Calculus.ContDiff.CPolynomial
 public import Mathlib.Analysis.Calculus.ContDiff.Comp
+public import Mathlib.Analysis.Calculus.ContDiff.ContinuousAlternatingMap
+public import Mathlib.Analysis.Calculus.ContDiff.ContinuousMultilinearMap
 public import Mathlib.Analysis.Calculus.ContDiff.Convolution
 public import Mathlib.Analysis.Calculus.ContDiff.Defs
 public import Mathlib.Analysis.Calculus.ContDiff.Deriv
@@ -4608,6 +4610,7 @@ public import Mathlib.Geometry.Manifold.Sheaf.Smooth
 public import Mathlib.Geometry.Manifold.SmoothApprox
 public import Mathlib.Geometry.Manifold.SmoothEmbedding
 public import Mathlib.Geometry.Manifold.StructureGroupoid
+public import Mathlib.Geometry.Manifold.VectorBundle.Alternating
 public import Mathlib.Geometry.Manifold.VectorBundle.Basic
 public import Mathlib.Geometry.Manifold.VectorBundle.ContMDiffSection
 public import Mathlib.Geometry.Manifold.VectorBundle.CovariantDerivative.Basic
@@ -6692,6 +6695,7 @@ public import Mathlib.RingTheory.Nilpotent.GeometricallyReduced
 public import Mathlib.RingTheory.Nilpotent.Lemmas
 public import Mathlib.RingTheory.NoetherNormalization
 public import Mathlib.RingTheory.Noetherian.Basic
+public import Mathlib.RingTheory.Noetherian.Continuous
 public import Mathlib.RingTheory.Noetherian.Defs
 public import Mathlib.RingTheory.Noetherian.Filter
 public import Mathlib.RingTheory.Noetherian.Nilpotent
