@@ -52,6 +52,7 @@ variable {B F₁ F₂ : Type*} {n : WithTop ℕ∞}
   [ContMDiffVectorBundle n F₁ E₁ IB]
   [ContMDiffVectorBundle n F₂ E₂ IB]
 
+omit [CompleteSpace F₂] in
 theorem Bundle.contMDiffOn_continuousAlternatingMapCoordChange
     {e₁ e₁' : Trivialization F₁ (π F₁ E₁)} {e₂ e₂' : Trivialization F₂ (π F₂ E₂)}
     [MemTrivializationAtlas e₁] [MemTrivializationAtlas e₁']

@@ -293,12 +293,10 @@ theorem ContinuousAlternatingMap.contMDiffOn {ι : Type*} [Fintype ι] (f : E [�
     ContMDiffOn 𝓘(𝕜, ι → E) 𝓘(𝕜, F) n f s :=
   f.contMDiff.contMDiffOn
 
-section CompleteCodomainCharZero
+section CharZero
 
-variable [CompleteSpace F₃] [CharZero 𝕜]
+variable [CharZero 𝕜]
 
-/-- See the docstring of `ContinuousAlternatingMap.compContinuousLinearMapCLM_contDiff` for why
-the analytic case `n = ω` is not handled. -/
 theorem ContMDiffWithinAt.continuousAlternatingMap_precomp
     {f : M → F₁ →L[𝕜] F₂}
     (hf : ContMDiffWithinAt I 𝓘(𝕜, F₁ →L[𝕜] F₂) n f s x) :
@@ -325,7 +323,7 @@ theorem ContMDiff.continuousAlternatingMap_precomp {f : M → F₁ →L[𝕜] F�
       (fun y ↦ compContinuousLinearMapCLM (F := F₃) (ι := ι) (f y)) :=
   fun x ↦ (hf x).continuousAlternatingMap_precomp
 
-end CompleteCodomainCharZero
+end CharZero
 
 theorem ContMDiffWithinAt.continuousAlternatingMap_postcomp {f : M → F₂ →L[𝕜] F₃}
     (hf : ContMDiffWithinAt I 𝓘(𝕜, F₂ →L[𝕜] F₃) n f s x) :
@@ -353,9 +351,9 @@ theorem ContMDiff.continuousAlternatingMap_postcomp {f : M → F₂ →L[𝕜] F
       (fun y ↦ ContinuousLinearMap.compContinuousAlternatingMapCLM 𝕜 F₁ F₂ F₃ ι (f y)) :=
   fun x ↦ (hf x).continuousAlternatingMap_postcomp
 
-section CompleteCodomainCharZero
+section CharZero
 
-variable [CompleteSpace F₃] [CharZero 𝕜]
+variable [CharZero 𝕜]
 
 theorem ContMDiffWithinAt.cle_continuousAlternatingMapCongr
     {f : M → F₁ ≃L[𝕜] F₂} {g : M → F₃ ≃L[𝕜] F₄}
@@ -404,6 +402,6 @@ theorem ContMDiff.cle_continuousAlternatingMapCongr
         (F₁ [⋀^ι]→L[𝕜] F₃) →L[𝕜] (F₂ [⋀^ι]→L[𝕜] F₄))) :=
   fun x ↦ (hf x).cle_continuousAlternatingMapCongr (hg x)
 
-end CompleteCodomainCharZero
+end CharZero
 
 end Alternating
