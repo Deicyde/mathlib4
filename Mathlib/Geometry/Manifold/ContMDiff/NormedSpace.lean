@@ -277,19 +277,19 @@ open ContinuousAlternatingMap
 
 variable {ι : Type*} [Fintype ι]
 
-theorem ContinuousAlternatingMap.contMDiff {ι : Type*} [Fintype ι] (f : E [⋀^ι]→L[𝕜] F) :
+theorem ContinuousAlternatingMap.contMDiff (f : E [⋀^ι]→L[𝕜] F) :
     ContMDiff 𝓘(𝕜, ι → E) 𝓘(𝕜, F) n f :=
   f.contDiff.contMDiff
 
-theorem ContinuousAlternatingMap.contMDiffAt {ι : Type*} [Fintype ι] (f : E [⋀^ι]→L[𝕜] F) {x} :
+theorem ContinuousAlternatingMap.contMDiffAt (f : E [⋀^ι]→L[𝕜] F) {x} :
     ContMDiffAt 𝓘(𝕜, ι → E) 𝓘(𝕜, F) n f x :=
   f.contMDiff _
 
-theorem ContinuousAlternatingMap.contMDiffWithinAt {ι : Type*} [Fintype ι]
-    (f : E [⋀^ι]→L[𝕜] F) {s x} : ContMDiffWithinAt 𝓘(𝕜, ι → E) 𝓘(𝕜, F) n f s x :=
+theorem ContinuousAlternatingMap.contMDiffWithinAt (f : E [⋀^ι]→L[𝕜] F) {s x} :
+    ContMDiffWithinAt 𝓘(𝕜, ι → E) 𝓘(𝕜, F) n f s x :=
   f.contMDiffAt.contMDiffWithinAt
 
-theorem ContinuousAlternatingMap.contMDiffOn {ι : Type*} [Fintype ι] (f : E [⋀^ι]→L[𝕜] F) {s} :
+theorem ContinuousAlternatingMap.contMDiffOn (f : E [⋀^ι]→L[𝕜] F) {s} :
     ContMDiffOn 𝓘(𝕜, ι → E) 𝓘(𝕜, F) n f s :=
   f.contMDiff.contMDiffOn
 

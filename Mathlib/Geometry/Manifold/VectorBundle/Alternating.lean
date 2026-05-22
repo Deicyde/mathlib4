@@ -11,27 +11,16 @@ public import Mathlib.Topology.VectorBundle.ContinuousAlternatingMap
 
 /-! # The vector bundle of continuous alternating maps is `C^n`
 
-We show that the bundle of continuous alternating maps between two `C^n` vector bundles over a
-common base is again a `C^n` vector bundle, parallel to what
-`Mathlib/Geometry/Manifold/VectorBundle/Hom.lean` does for the bundle of continuous linear maps.
+If `E₁` and `E₂` are `C^n` vector bundles over a common base with `E₂`'s typical fiber a Banach
+space, then the bundle of continuous `ι`-linear alternating maps `fun x ↦ E₁ x [⋀^ι]→L[𝕜] E₂ x`
+is again a `C^n` vector bundle. This is the alternating-map analogue of
+`Mathlib/Geometry/Manifold/VectorBundle/Hom.lean`.
 
-The topological vector bundle structure on `fun x ↦ E₁ x [⋀^ι]→L[𝕜] E₂ x` is provided by
-`Mathlib/Topology/VectorBundle/ContinuousAlternatingMap.lean`.
-
-## Implementation notes
-
-We restrict the smoothness exponent to `n : ℕ∞` (excluding the analytic case `n = ω`). The reason
-is that smoothness of the coordinate change reduces to the fact that
-`p ↦ ContinuousAlternatingMap.compContinuousLinearMapCLM p` is `C^n` as a function of `p`. The
-proof in `ContinuousAlternatingMap.compContinuousLinearMapCLM_contDiff` (in
-`Mathlib/Analysis/Calculus/ContDiff/ContinuousAlternatingMap.lean`) factors through the
-`LinearIsometry` embedding of alternating maps into multilinear maps and pulls back smoothness
-via `LinearIsometry.contDiff_comp_iff_of_completeSpace`, which is established at non-analytic
-smoothness levels for Banach codomains.
-
-The analytic case `n = ω` is excluded because it requires extracting off-diagonal multilinear
-coefficients from a power series, which in turn requires `1/n!` (or a continuous projection onto
-the alternating subspace) — fails in characteristic `p` whenever `p ≤ Fintype.card ι`.
+The topological vector bundle structure is provided by
+`Mathlib/Topology/VectorBundle/ContinuousAlternatingMap.lean`. Smoothness reduces to
+`ContinuousAlternatingMap.compContinuousLinearMapCLM_contDiff`, which in turn is established
+at non-analytic levels via `LinearIsometry.contDiff_comp_iff_of_completeSpace`. The analytic
+case `n = ω` is excluded; see `LinearIsometry.lean` for the obstruction.
 -/
 
 public section

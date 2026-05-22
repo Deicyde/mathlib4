@@ -12,11 +12,19 @@ public import Mathlib.Analysis.Normed.Module.Alternating.Basic
 /-!
 # Smoothness of operations on continuous alternating maps
 
-For `n : ℕ∞`, the pullback operator `compContinuousLinearMapCLM` is `C^n` in its defining
-continuous linear map, assuming the target space `F` is complete.
+The pullback operator `compContinuousLinearMapCLM`, sending a continuous linear map
+`p : E →L[𝕜] E'` to its action `Φ ↦ Φ ∘ p^{⊗ι}` on continuous alternating maps, is `C^n` for
+`n : ℕ∞` when the target space `F` is complete. The proof factors through the linear isometric
+embedding of alternating maps into continuous multilinear maps and pulls back smoothness via
+`LinearIsometry.contDiff_comp_iff_of_completeSpace`.
 
-The analytic case `n = ω` is not handled here; see
-`Mathlib/Analysis/Calculus/ContDiff/LinearIsometry.lean` for the underlying obstruction.
+The analytic case `n = ω` is not covered here; see `LinearIsometry.lean` for the obstruction.
+
+## Main results
+
+* `ContinuousAlternatingMap.contDiff`: continuous alternating maps are `C^n`.
+* `ContinuousAlternatingMap.compContinuousLinearMapCLM_contDiff`:
+  `compContinuousLinearMapCLM` is `C^n` for `n : ℕ∞`.
 -/
 
 public section

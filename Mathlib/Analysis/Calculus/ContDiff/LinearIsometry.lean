@@ -13,26 +13,28 @@ public import Mathlib.Analysis.Normed.Operator.NormedSpace
 /-!
 # `C^n`-smoothness through a linear isometric embedding
 
-This file proves that postcomposing with a linear isometry from a complete normed space preserves
-and reflects `C^n`-smoothness for `n : ℕ∞`. This is the Banach generalization of
-`ContinuousLinearMap.contDiff_comp_iff` for non-analytic smoothness levels (which requires
-finite-dimensionality on the codomain).
+For `Φ : E →ₗᵢ[𝕜] F` with `E` complete, postcomposing with `Φ` preserves and reflects
+`C^n`-smoothness for `n : ℕ∞`. This is the Banach generalization of
+`ContinuousLinearMap.contDiff_comp_iff` (`FiniteDimension.lean`) at non-analytic smoothness
+levels: the FD codomain hypothesis there is replaced by completeness of the domain here.
 
-The argument: for `Φ : E →ₗᵢ[𝕜] F` with `E` complete, the image `range Φ` is closed and `Φ` is a
-topological isomorphism onto it. The Fréchet derivative of `Φ ∘ f` automatically lands in
-`range Φ` (closed limits of difference quotients) and pulls back through `Φ.equivRange.symm`. We
-iterate via induction on the smoothness order, recursing into the operator-level postcomposition
+The argument: `range Φ` is closed (isometric embedding) and `Φ` is a topological isomorphism
+onto it. Every Fréchet derivative of `Φ ∘ f` lands in `range Φ` (closed limits of difference
+quotients) and pulls back through `Φ.equivRange.symm`. We iterate by induction on smoothness
+order, recursing into the operator-level postcomposition
 `Φ.postcomp : (G →L[𝕜] E) →ₗᵢ[𝕜] (G →L[𝕜] F)`.
 
-The analytic case `n = ω` is not handled here; see `LinearIsometryAnalytic.lean` for the open
-lemma needed to extend the result.
+The analytic case `n = ω` is not handled here. The induction never reaches `ω` (finite at every
+step), and an alternative Faà-di-Bruno-style direct construction would need to extract
+off-diagonal multilinear coefficients from a power series, which requires `1/n!` in
+characteristic `p ≤ n`.
 
 ## Main results
 
 * `LinearIsometry.hasFDerivAt_of_comp`: extract a Fréchet derivative of `f` from one of `Φ ∘ f`.
-* `LinearIsometry.contDiff_comp_iff_of_completeSpace`: for `n : ℕ∞`, `Φ ∘ f` is `C^n` iff `f` is
-  `C^n`.
-
+* `LinearIsometry.contDiff_comp_iff_of_completeSpace`: for `n : ℕ∞`, `Φ ∘ f` is `C^n` iff `f`
+  is `C^n`.
+* `ContinuousLinearMap.contDiff_comp_iff_of_isometry_completeSpace`: CLM-flavored version.
 -/
 
 public section
