@@ -78,14 +78,18 @@ theorem contDiffOn_succ_iff_fderiv_apply [FiniteDimensional 𝕜 D] (hs : Unique
       ∀ y, ContDiffOn 𝕜 n (fun x => fderivWithin 𝕜 f s x y) s := by
   rw [contDiffOn_succ_iff_fderivWithin hs, contDiffOn_clm_apply]
 
-/-- Postcomposition by an injective continuous linear map preserves `C^n`-smoothness -/
+/-- Postcomposition by an injective continuous linear map with finite-dimensional codomain
+preserves and reflects `C^n`-smoothness: `Φ ∘ g` is `C^n` iff `g` is, for any `n`. The reflection
+direction uses the left inverse `Ψ` of `Φ` (available because the codomain is finite-dimensional)
+to recover `g` as `Ψ ∘ Φ ∘ g`. -/
 theorem ContinuousLinearMap.contDiff_comp_iff [FiniteDimensional 𝕜 F]
     (Φ : E →L[𝕜] F) (hΦ : Function.Injective Φ) {g : D → E} {m : ℕ∞ω} :
     ContDiff 𝕜 m (Φ ∘ g) ↔ ContDiff 𝕜 m g := by
   refine ⟨fun hg ↦ ?_, Φ.contDiff.comp⟩
   obtain ⟨Ψ, hΨ⟩ := LinearMap.exists_leftInverse_of_injective Φ.toLinearMap
     (LinearMap.ker_eq_bot.mpr hΦ)
-  have heq : Ψ.toContinuousLinearMap ∘ (Φ ∘ g) = g := funext fun x ↦ LinearMap.congr_fun hΨ (g x)
+  have heq : Ψ.toContinuousLinearMap ∘ (Φ ∘ g) = g :=
+    funext fun x ↦ LinearMap.congr_fun hΨ (g x)
   exact heq ▸ Ψ.toContinuousLinearMap.contDiff.comp hg
 
 end FiniteDimensional

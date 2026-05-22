@@ -13,10 +13,21 @@ public import Mathlib.LinearAlgebra.Multilinear.FiniteDimensional
 /-!
 # Smoothness of operations on continuous alternating maps
 
-The pullback operator `compContinuousLinearMapCLM` is `C^n` in its defining continuous linear map,
-assuming the typical-fiber data is finite-dimensional. The proof factors through the embedding
-of alternating maps into continuous multilinear maps and pulls back via the finite-dimensional
-postcomposition iff `ContinuousLinearMap.contDiff_comp_iff`.
+The pullback operator `compContinuousLinearMapCLM`, sending a continuous linear map
+`p : E →L[𝕜] E'` to its action `Φ ↦ Φ ∘ p^{⊗ι}` on continuous alternating maps, is `C^n` for
+all `n : WithTop ℕ∞` (including `n = ω`) when the typical-fiber data is finite-dimensional.
+The proof factors through the linear isometric embedding of alternating maps into continuous
+multilinear maps and pulls back via the finite-dimensional postcomposition iff
+`ContinuousLinearMap.contDiff_comp_iff` (`FiniteDimension.lean`).
+
+## Main results
+
+* `ContinuousMultilinearMap.instFiniteDimensional` and
+  `ContinuousAlternatingMap.instFiniteDimensional`: finite-dimensionality of the spaces of
+  continuous multilinear and continuous alternating maps over finite-dimensional inputs/output.
+* `ContinuousAlternatingMap.contDiff`: continuous alternating maps are `C^n`.
+* `ContinuousAlternatingMap.compContinuousLinearMapCLM_contDiff`:
+  `compContinuousLinearMapCLM` is `C^n` for all `n : WithTop ℕ∞`.
 -/
 
 public section
@@ -64,13 +75,13 @@ variable [CompleteSpace 𝕜] {E' : Type*} [NormedAddCommGroup E'] [NormedSpace 
 theorem ContinuousAlternatingMap.compContinuousLinearMapCLM_contDiff :
     ContDiff 𝕜 n (compContinuousLinearMapCLM :
       (E →L[𝕜] E') → (E' [⋀^ι]→L[𝕜] F) →L[𝕜] (E [⋀^ι]→L[𝕜] F)) := by
+  -- Postcompose with the linear-isometric alt ↪ multi embedding and reflect smoothness back
+  -- via the finite-dimensional `contDiff_comp_iff`.
   have hg : ContDiff 𝕜 n (fun p : E →L[𝕜] E' ↦
       (compContinuousLinearMapL (F := F) (fun _ : ι ↦ p)).comp (toContinuousMultilinearMapCLM 𝕜)) :=
     ContDiff.clm_comp compContinuousLinearMapL_diag_contDiff contDiff_const
   let Φ : ((E' [⋀^ι]→L[𝕜] F) →L[𝕜] (E [⋀^ι]→L[𝕜] F)) →ₗᵢ[𝕜]
       ((E' [⋀^ι]→L[𝕜] F) →L[𝕜] ContinuousMultilinearMap 𝕜 (fun _ : ι ↦ E) F) :=
     (toContinuousMultilinearMapLI (𝕜 := 𝕜) (ι := ι) (E := E) (F := F)).postcomp
-    (E := E' [⋀^ι]→L[𝕜] F) (σ₁₂ := RingHom.id 𝕜) (σ₁₃ := RingHom.id 𝕜)
-  have hg' : ContDiff 𝕜 n (⇑Φ ∘ compContinuousLinearMapCLM
-      (𝕜 := 𝕜) (ι := ι) (E := E) (E' := E') (F := F)) := hg
-  exact (Φ.toContinuousLinearMap.contDiff_comp_iff Φ.injective).mp hg'
+      (E := E' [⋀^ι]→L[𝕜] F) (σ₁₂ := RingHom.id 𝕜) (σ₁₃ := RingHom.id 𝕜)
+  exact (Φ.toContinuousLinearMap.contDiff_comp_iff Φ.injective).mp hg

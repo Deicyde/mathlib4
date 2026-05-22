@@ -11,18 +11,16 @@ public import Mathlib.Topology.VectorBundle.ContinuousAlternatingMap
 
 /-! # The vector bundle of continuous alternating maps is `C^n`
 
-We show that the bundle of continuous alternating maps between two `C^n` vector bundles with
-finite-dimensional typical fibers over a common base is again a `C^n` vector bundle, parallel
-to what `Mathlib/Geometry/Manifold/VectorBundle/Hom.lean` does for the bundle of continuous
-linear maps.
+If `E₁` and `E₂` are `C^n` vector bundles over a common base with finite-dimensional typical
+fibers, then the bundle of continuous `ι`-linear alternating maps
+`fun x ↦ E₁ x [⋀^ι]→L[𝕜] E₂ x` is again a `C^n` vector bundle (for any `n : WithTop ℕ∞`,
+including the analytic case `n = ω`). This is the alternating-map analogue of
+`Mathlib/Geometry/Manifold/VectorBundle/Hom.lean`.
 
-The topological vector bundle structure on `fun x ↦ E₁ x [⋀^ι]→L[𝕜] E₂ x` is provided by
-`Mathlib/Topology/VectorBundle/ContinuousAlternatingMap.lean`.
-
-The proof factors through the linear isometric embedding of alternating maps into multilinear
-maps and pulls back smoothness via the finite-dimensional postcomposition iff
-`ContinuousLinearMap.contDiff_comp_iff`, valid for all `n : WithTop ℕ∞` (including `n = ω`)
-when the codomain is finite-dimensional.
+The topological vector bundle structure is provided by
+`Mathlib/Topology/VectorBundle/ContinuousAlternatingMap.lean`. Smoothness reduces to
+`ContinuousAlternatingMap.compContinuousLinearMapCLM_contDiff`, established via the
+finite-dimensional postcomposition iff `ContinuousLinearMap.contDiff_comp_iff`.
 -/
 
 public section
