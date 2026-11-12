@@ -256,6 +256,14 @@ to module `Foo.Bar` (no `srcDir` indirection).
   successful master build and publishes the result to the
   [`crossref-exports`](https://github.com/leanprover-community/crossref-exports) repository
   (committing only when the entries actually change).
+- `export_citations.lean`
+  Exports every citation recorded by `@[cite]` — including the ones that `@[stacks]` and the other
+  cross-reference attributes record — as
+  [Literature Links](https://github.com/mathlib-initiative/literature-links) annotations, one per
+  line (JSONL). Like `export_crossrefs.lean`, it runs over the fully-imported `Mathlib`
+  environment, so it is invoked with `lake env lean scripts/export_citations.lean`. The output
+  path defaults to `citations.jsonl` (override with `CITATIONS_OUT`); the mathlib commit SHA that
+  the Lean ends are pinned to is read from `CITATIONS_COMMIT`.
 - `autolabel.lean` is the Lean script in charge of automatically adding a `t-`label on eligible PRs.
   Autolabelling is inferred by which directories the current PR modifies.
 - `auto_commit.sh` runs a command and creates a commit with the result. The commit message format
