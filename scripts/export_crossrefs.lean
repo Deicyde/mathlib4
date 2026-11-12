@@ -11,7 +11,8 @@ import Mathlib
 
 Elaborating this file writes a JSON file listing every Mathlib declaration tagged with
 `@[wikidata ...]`, `@[stacks ...]`, `@[kerodon ...]`, `@[lmfdb ...]`, `@[dlmf ...]`, or
-`@[oeis ...]` together with its source file, line number, and the referenced identifiers.
+`@[oeis ...]` together with its source file, line number, and the referenced identifiers,
+each with the URL of its entry and the label of its database.
 
 The cross-references are read from the ambient environment (like the `#stacks_tags` command), so
 the file must be run with the full `Mathlib` import elaborated:
@@ -51,7 +52,8 @@ def buildEntries (env : Environment) : Array Json := Id.run do
     let tags := tags.qsort fun a b =>
       (compare a.database b.database).then (compare a.tag b.tag) |>.isLT
     let refs : Array Json := tags.map fun t =>
-      json% { db : $(t.database.shortName), id : $(t.tag), comment : $(t.comment) }
+      json% { db : $(t.database.shortName), id : $(t.tag), comment : $(t.comment),
+              url : $(t.database.url t.tag), label : $(t.database.label) }
     let (mod, line) := declLocation env decl |>.getD ("", 0)
     json% { decl : $(decl.toString), module : $(mod), line : $(line), refs : $(refs) }
 
