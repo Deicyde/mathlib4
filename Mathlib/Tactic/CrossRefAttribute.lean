@@ -7,6 +7,7 @@ module
 
 public meta import Batteries.Data.Char
 public meta import Lean.Elab.Command
+public meta import Mathlib.Tactic.Cite
 public import Mathlib.Init
 
 /-!
@@ -25,6 +26,11 @@ to entries in external mathematical databases:
 
 Each attribute records the cross-reference in an environment extension and appends
 a link to the declaration's docstring.
+
+Each database is also declared as a source of the generic citation system
+(`Mathlib/Tactic/Cite.lean`), and every cross-reference records a citation of that source, so
+`@[cite stacks "0BR2"]` records the same entry as `@[stacks 0BR2]`. `Database.uriTemplates` is the
+single source of truth for the URLs of both.
 
 The shared infrastructure (`Database`, `Tag`, `tagExt`, `addCrossRefDoc`,
 `traceCrossRefs`) is database-agnostic; per-database code defines a parser, the
@@ -58,6 +64,9 @@ exporting to JSON. -/
 def shortName : PiBaseTopic → String
   | topology => "topology"
 
+/-- Every π-Base topic. -/
+def all : Array PiBaseTopic := #[topology]
+
 end PiBaseTopic
 
 /-- The supported external databases -/
@@ -77,23 +86,32 @@ attribute [nolint simpNF] Database.pibase.injEq
 
 namespace Database
 
+/-- Every supported database. A new database must be added here, so that it is declared as a
+citation source. -/
+def all : Array Database :=
+  #[.dlmf, .kerodon, .lmfdb, .oeis] ++ PiBaseTopic.all.map .pibase ++ #[.stacks, .wikidata]
+
+/-- The addresses of the database's entries, as `Mathlib.Cite.Source.uriTemplates` keeps them:
+templates keyed by a prefix of the identifier, the longest matching key winning, where `""`
+matches every identifier and `{id}` stands for the identifier. This is the single source of truth
+for the database's URLs: `Database.url` resolves one of these templates, and `Database.source`
+hands them to the generic citation system. -/
+def uriTemplates : Database → Array (String × String)
+  | .dlmf => #[("", "https://dlmf.nist.gov/{id}")]
+  | .kerodon => #[("", "https://kerodon.net/tag/{id}")]
+  | .lmfdb => #[("", "https://www.lmfdb.org/knowledge/show/{id}")]
+  | .oeis => #[("", "https://oeis.org/{id}")]
+  | .pibase topic =>
+    -- π-Base keeps properties, spaces and theorems on pages of their own, told apart by the first
+    -- letter of the identifier; an identifier of none of those kinds gets the bare address.
+    let base := s!"https://{topic.urlSubdomain}.pi-base.org"
+    #[("P", base ++ "/properties/{id}"), ("S", base ++ "/spaces/{id}"),
+      ("T", base ++ "/theorems/{id}"), ("", base ++ "/{id}")]
+  | .stacks => #[("", "https://stacks.math.columbia.edu/tag/{id}")]
+  | .wikidata => #[("", "https://www.wikidata.org/wiki/{id}")]
+
 /-- The URL for an external database entry, where `id` is the identifier recorded in `Tag.tag`. -/
-def url : Database → String → String
-  | .dlmf, id => s!"https://dlmf.nist.gov/{id}"
-  | .kerodon, id => s!"https://kerodon.net/tag/{id}"
-  | .lmfdb, id => s!"https://www.lmfdb.org/knowledge/show/{id}"
-  | .oeis, id => s!"https://oeis.org/{id}"
-  | .pibase topic, id =>
-    -- The `.toString` is required: `String.take` returns a `String.Slice`, and matching a slice
-    -- against a string literal compares the slice structurally, so it would never match here.
-    let path := match (id.take 1).toString with
-      | "P" => "properties"
-      | "S" => "spaces"
-      | "T" => "theorems"
-      | _ => ""
-    s!"https://{topic.urlSubdomain}.pi-base.org/{path}/{id}"
-  | .stacks, id => s!"https://stacks.math.columbia.edu/tag/{id}"
-  | .wikidata, id => s!"https://www.wikidata.org/wiki/{id}"
+def url (db : Database) (id : String) : String := Cite.entryUri db.uriTemplates id
 
 /-- The display label used in docstring links and trace output. -/
 def label : Database → String
@@ -115,7 +133,17 @@ def shortName : Database → String
   | .stacks   => "stacks"
   | .wikidata => "wikidata"
 
+/-- The database as a source of the generic citation system, named by its short name, so that
+`@[cite stacks "0BR2"]` records the same entry as `@[stacks 0BR2]`. -/
+def source (db : Database) : Cite.Source :=
+  { name := .mkSimple db.shortName, title := db.label, uriTemplates := db.uriTemplates }
+
 end Database
+
+-- Declare every database as a source that `@[cite]` can cite.
+run_cmd
+  for db in Database.all do
+    Cite.addSource db.source
 
 /-- A cross-reference from a Mathlib declaration to an entry in an external database. -/
 structure Tag where
@@ -150,7 +178,8 @@ def escapeFormatting (str : String) : String :=
     -- Therefore, let's just escape everything and be sure it won't be misinterpreted.
     if c.isAscii && !c.isAlphanum then acc.push '\\' |>.push c else acc.push c
 
-/-- Append a cross-reference link to the docstring of `decl` and record it in `tagExt`.
+/-- Append a cross-reference link to the docstring of `decl`, record it in `tagExt` and record a
+citation of the database's source.
 This is the database-agnostic core of every cross-reference attribute's `add` handler.
 
 TODO: due to the docstring extension being `.async .asyncEnv`, this can only add new docstrings
@@ -172,6 +201,9 @@ def addCrossRefDoc (db : Database) (decl : Name) (idStr comment : String) : Core
   else
     addDocStringCore decl newDoc
   addTagEntry decl db idStr comment
+  Cite.addCitation {
+    declName := decl, source := db.source.name, id := idStr
+    comment := comment, url := db.url idStr }
 
 open Parser
 
