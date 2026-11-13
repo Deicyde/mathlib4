@@ -27,6 +27,8 @@ A *source* is a work that declarations cite: a book, an article, or a web databa
 
 Both are kept in persistent environment extensions, read by `Mathlib.Cite.sources` and
 `Mathlib.Cite.citations`, from which an export can write them out in the format it wants.
+`Mathlib/Tactic/Cite/LiteratureLinks.lean` is one such export, and `scripts/export_citations.lean`
+runs it.
 
 This file is independent of the cross-reference databases: `Mathlib/Tactic/CrossRefAttribute.lean`
 declares each of them as a source and makes every cross-reference attribute record a citation of
