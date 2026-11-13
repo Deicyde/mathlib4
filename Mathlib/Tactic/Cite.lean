@@ -16,11 +16,10 @@ public import Mathlib.Init
 A *source* is a work that declarations cite: a book, an article, or a web database such as the
 [OEIS](https://oeis.org/). A *citation* records that a declaration formalizes one of its entries.
 
-* `cite_source` declares a source, with a title, the address of its entries and the
+* `cite_source` declares a source, with a title, the address of its entries, the
   [Literature Links](https://github.com/mathlib-initiative/literature-links) type of the ends made
-  from it:
+  from it, and optionally a docstring:
   ```
-  /-- An online database of integer sequences. -/
   cite_source oeis "The On-Line Encyclopedia of Integer Sequences"
     (uri := "https://oeis.org/{id}")
   ```
