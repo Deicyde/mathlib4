@@ -255,6 +255,16 @@ to module `Foo.Bar` (no `srcDir` indirection).
   successful master build and publishes the result to the
   [`crossref-exports`](https://github.com/leanprover-community/crossref-exports) repository
   (committing only when the entries actually change).
+- `export_citations.lean`
+  Exports every citation recorded by `@[cite]`, including those of `@[stacks]` and the other
+  cross-reference attributes, as
+  [Literature Links](https://github.com/mathlib-initiative/literature-links) annotations, one per
+  line (JSONL). Run it as
+  `CITATIONS_COMMIT=$(git rev-parse HEAD) lake env lean scripts/export_citations.lean`:
+  `CITATIONS_COMMIT`, the commit that the Lean ends are pinned to, is required. `CITATIONS_OUT` is
+  the output path (default `citations.jsonl`), `CITATIONS_REPO` the repository (default
+  `https://github.com/leanprover-community/mathlib4`) and `CITATIONS_BIB` the BibTeX file read for
+  `@[cite "key"]` (default `docs/references.bib`).
 - [`crossref-diff.yml`](../.github/workflows/crossref-diff.yml)
   Post-build workflow that diffs a PR build's `crossrefs.json` against the master build at the
   PR's merge base, then comments on the PR with the cross-references it adds, each linked to its
