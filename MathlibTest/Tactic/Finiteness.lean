@@ -116,3 +116,18 @@ example {α : Type*} (f : α → ℕ) : ∀ i, (f i : ℝ≥0∞) ≠ ∞ := by 
 
 example {α} {_ : MeasurableSpace α} (μ : Measure α) [IsFiniteMeasure μ] (s : Set α) : μ s ≠ ∞ := by
   finiteness
+
+section biUnion
+
+variable {α β : Type*} [MeasurableSpace α] {μ : Measure α} {f : β → Set α}
+
+-- `measure_biUnion_ne_top` must not keep `finiteness` from using `measure_ne_top` when `s` is not
+-- known to be finite.
+example [IsFiniteMeasure μ] {s : Set β} : μ (⋃ i ∈ s, f i) ≠ ∞ := by finiteness
+
+example [IsFiniteMeasure μ] {n : ℕ} {f : ℕ → Set α} : μ (⋃ i < n, f i) ≠ ∞ := by finiteness
+
+example {s : Set β} (hs : s.Finite) (h : ∀ i ∈ s, μ (f i) ≠ ∞) : μ (⋃ i ∈ s, f i) ≠ ∞ := by
+  finiteness
+
+end biUnion

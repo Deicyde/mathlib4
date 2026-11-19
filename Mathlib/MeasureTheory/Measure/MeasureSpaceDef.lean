@@ -239,7 +239,8 @@ theorem measure_biUnion_lt_top {s : Set β} {f : β → Set α} (hs : s.Finite)
     rw [Finite.mem_toFinset]
   · simpa only [ENNReal.sum_lt_top, Finite.mem_toFinset]
 
-@[aesop (rule_sets := [finiteness]) safe apply]
+-- This is unsafe because the goal can hold for an infinite `s`, e.g. when `μ` is a finite measure
+@[aesop (rule_sets := [finiteness]) unsafe 75% apply]
 theorem measure_biUnion_ne_top {s : Set β} {f : β → Set α} (hs : s.Finite)
     (hfin : ∀ i ∈ s, μ (f i) ≠ ∞) : μ (⋃ i ∈ s, f i) ≠ ∞ :=
   (measure_biUnion_lt_top hs (fun i hi ↦ Ne.lt_top (hfin i hi ·))).ne
