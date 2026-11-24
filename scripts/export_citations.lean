@@ -25,6 +25,11 @@ Each annotation has the cited entry as its subject and the Mathlib declaration a
   The CSL-JSON fields are the BibTeX ones without their braces: LaTeX in them, such as the accent
   in `Soboci\'nski`, is kept as it is written. A DOI written as a `https://doi.org/` address is
   read as the bare DOI.
+* A citation's comment, such as the `(1)` of `@[stacks 05GG "(1)"]`, usually names a part of the
+  entry, so it goes into the subject's `title`, in parentheses unless it already is, as Mathlib's
+  docstring links show it: `Stacks Tag 05GG (1)`. The subject also keeps the citation as recorded
+  in its `extensions`: under `crossrefExtension` as `db`, `id` and `comment` for a database, the
+  fields of a reference in Mathlib's `crossrefs.json`, and under `citeExtension` otherwise.
 
 The citations are read from the ambient environment (like the `#stacks_tags` command), so the
 file must be run with the full `Mathlib` import elaborated:
@@ -55,6 +60,20 @@ def isIdentifiersKey (key : String) : Bool :=
 
 /-- `s`, unless it is empty. -/
 def nonempty? (s : String) : Option String := if s.isEmpty then none else some s
+
+/-- The extension key, on the subject end, for a citation of a database, as a reference of
+Mathlib's `crossrefs.json` has it. -/
+def crossrefExtension : String := "org.leanprover-community.mathlib4.crossref"
+
+/-- The extension key, on the subject end, for any other citation, as recorded. -/
+def citeExtension : String := "org.leanprover-community.mathlib4.cite"
+
+/-- `title` followed by `comment`, in parentheses unless it already is, as Mathlib's docstring
+links show a cross-reference's comment. -/
+def withComment (title comment : String) : String :=
+  if comment.isEmpty then title
+  else if comment.startsWith "(" && comment.endsWith ")" then s!"{title} {comment}"
+  else s!"{title} ({comment})"
 
 /-! ### Reading the BibTeX file -/
 
@@ -282,18 +301,28 @@ def subject (bib : Std.HashMap String BibEntry) (c : Citation) : CoreM (String √
     if let some key := registry? then
       unless isIdentifiersKey key do
         throwError "the registry `{key}` of the source `{name}` is not a valid identifiers key"
+    let recorded := match Database.ofSourceName? name with
+      | some db => (crossrefExtension,
+          json% { db : $(db.shortName), id : $(c.id), comment : $(c.comment) })
+      | none => (citeExtension,
+          json% { source : $(name.toString (escape := false)), id : $(c.id),
+            comment : $(c.comment) })
     let subjectEnd := json% { type : $(type), uri : $(entryUri s.uriTemplates c.id),
-      title : $(s!"{s.title} {c.id}") }
+      title : $(withComment s!"{s.title} {c.id}" c.comment),
+      extensions : $(Json.mkObj [recorded]) }
     return (s!"{name.toString (escape := false)}:{c.id}", subjectEnd.mergeObj <| Json.mkObj <|
       opt "identifiers" (registry?.map fun key => Json.mkObj [(key, toJson c.id)]))
   | .bib key =>
     -- `readBib` has checked that `bib` has every key cited
     let e := bib[key]!
     let uri := e.uri
+    let title := if c.id.isEmpty then c.comment else withComment c.id c.comment
     let subjectEnd := json% { type : $(if uri.toLower.endsWith ".pdf" then "pdf" else "html"),
-      uri : $(uri), citation : $(e.csl) }
+      uri : $(uri), citation : $(e.csl),
+      extensions : $(Json.mkObj [(citeExtension,
+        json% { key : $(key), locator : $(c.id), comment : $(c.comment) })]) }
     return (if c.id.isEmpty then key else s!"{key}:{c.id}",
-      subjectEnd.mergeObj <| Json.mkObj <| opt "title" (nonempty? c.id))
+      subjectEnd.mergeObj <| Json.mkObj <| opt "title" (nonempty? title))
 
 /-- The annotations of the citations `cites`, one JSON line each, sorted by `id`, then by
 declaration. -/
@@ -309,7 +338,6 @@ def buildAnnotations (cites : Array Citation) (bib : Std.HashMap String BibEntry
       let module := (env.getModuleFor? c.declName).getD env.mainModule
       let annotation := json% { id : $(id), subject : [$(subjectEnd)],
         object : [$(leanEnd decl module repo commit)] }
-      let annotation := annotation.mergeObj <| Json.mkObj <| opt "note" (nonempty? c.comment)
       annotations := annotations.push (id, decl, annotation.compress)
     catch e => errors := errors.push (‚Üê e.toMessageData.toString)
   unless errors.isEmpty do
