@@ -57,6 +57,7 @@ public import Mathlib.Tactic.CategoryTheory.ToApp
 public import Mathlib.Tactic.Change
 public import Mathlib.Tactic.Check
 public import Mathlib.Tactic.Choose
+public import Mathlib.Tactic.Cite
 public import Mathlib.Tactic.Clean
 public import Mathlib.Tactic.ClearExcept
 public import Mathlib.Tactic.ClearExclamation

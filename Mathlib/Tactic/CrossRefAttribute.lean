@@ -7,6 +7,7 @@ module
 
 public meta import Batteries.Data.Char
 public meta import Lean.Elab.Command
+public meta import Mathlib.Tactic.Cite
 public import Mathlib.Init
 
 /-!
@@ -26,7 +27,12 @@ to entries in external mathematical databases:
 Each attribute records the cross-reference in an environment extension and appends
 a link to the declaration's docstring.
 
-The shared infrastructure (`Database`, `Tag`, `tagExt`, `addCrossRefDoc`,
+Each database is also a source of citations (see `Mathlib/Tactic/Cite.lean`), named by its short
+name, and each cross-reference is also a citation. `@[cite stacks "0BR2" "c"]`, registered at the
+end of this file, runs the same code as `@[stacks 0BR2 "c"]`. `Database.uriTemplates` is the single
+source of truth for the URLs.
+
+The shared infrastructure (`Database`, `Tag`, `tagExt`, `citeEntry`, `addCrossRefDoc`,
 `traceCrossRefs`) is database-agnostic; per-database code defines a parser, the
 attribute syntax, and the trace command.
 -/
@@ -58,6 +64,9 @@ exporting to JSON. -/
 def shortName : PiBaseTopic → String
   | topology => "topology"
 
+/-- Every π-Base topic. -/
+def all : Array PiBaseTopic := #[topology]
+
 end PiBaseTopic
 
 /-- The supported external databases -/
@@ -77,23 +86,27 @@ attribute [nolint simpNF] Database.pibase.injEq
 
 namespace Database
 
+/-- Every supported database: a new database must be added here, to be declared as a source. -/
+def all : Array Database :=
+  #[.dlmf, .kerodon, .lmfdb, .oeis] ++ PiBaseTopic.all.map .pibase ++ #[.stacks, .wikidata]
+
+/-- The addresses of the database's entries: the single source of truth for its URLs. -/
+def uriTemplates : Database → Array (String × String)
+  | .dlmf => #[("", "https://dlmf.nist.gov/{id}")]
+  | .kerodon => #[("", "https://kerodon.net/tag/{id}")]
+  | .lmfdb => #[("", "https://www.lmfdb.org/knowledge/show/{id}")]
+  | .oeis => #[("", "https://oeis.org/{id}")]
+  | .pibase topic =>
+    -- π-Base keeps properties, spaces and theorems on pages of their own, told apart by the first
+    -- letter of the identifier; an identifier of none of those kinds gets the bare address.
+    let base := s!"https://{topic.urlSubdomain}.pi-base.org"
+    #[("P", base ++ "/properties/{id}"), ("S", base ++ "/spaces/{id}"),
+      ("T", base ++ "/theorems/{id}"), ("", base ++ "/{id}")]
+  | .stacks => #[("", "https://stacks.math.columbia.edu/tag/{id}")]
+  | .wikidata => #[("", "https://www.wikidata.org/wiki/{id}")]
+
 /-- The URL for an external database entry, where `id` is the identifier recorded in `Tag.tag`. -/
-def url : Database → String → String
-  | .dlmf, id => s!"https://dlmf.nist.gov/{id}"
-  | .kerodon, id => s!"https://kerodon.net/tag/{id}"
-  | .lmfdb, id => s!"https://www.lmfdb.org/knowledge/show/{id}"
-  | .oeis, id => s!"https://oeis.org/{id}"
-  | .pibase topic, id =>
-    -- The `.toString` is required: `String.take` returns a `String.Slice`, and matching a slice
-    -- against a string literal compares the slice structurally, so it would never match here.
-    let path := match (id.take 1).toString with
-      | "P" => "properties"
-      | "S" => "spaces"
-      | "T" => "theorems"
-      | _ => ""
-    s!"https://{topic.urlSubdomain}.pi-base.org/{path}/{id}"
-  | .stacks, id => s!"https://stacks.math.columbia.edu/tag/{id}"
-  | .wikidata, id => s!"https://www.wikidata.org/wiki/{id}"
+def url (db : Database) (id : String) : String := Cite.entryUri db.uriTemplates id
 
 /-- The display label used in docstring links and trace output. -/
 def label : Database → String
@@ -115,7 +128,67 @@ def shortName : Database → String
   | .stacks   => "stacks"
   | .wikidata => "wikidata"
 
+/-- The name of the database as a source of citations: its short name. -/
+def sourceName (db : Database) : Name := .mkSimple db.shortName
+
+/-- The database whose source of citations is named `name`, if any. -/
+def ofSourceName? (name : Name) : Option Database := all.find? (·.sourceName == name)
+
+/-- The database as a source of citations, so that `@[cite stacks "0BR2"]` cites a Stacks tag. -/
+def source (db : Database) : Cite.Source :=
+  { name := db.sourceName, title := db.label, uriTemplates := db.uriTemplates }
+
+/-- `isOeisId` checks whether a string is an OEIS identifier. -/
+private def isOeisId (id : List Char) : Bool :=
+  match id with
+  | 'A' :: rest => rest.length == 6 && rest.all Char.isDigit
+  | _ => false
+
+/-- Check that `id` is an identifier of the database: the check of the database's parser. -/
+def checkId : Database → String → Except String Unit
+  | .stacks, id | .kerodon, id =>
+    if !id.all fun (c : Char) => c.isDigit || c.isUpper then
+      .error "Stacks tags must consist only of digits and uppercase letters."
+    else if id.length != 4 then
+      .error "Stacks tags must be exactly 4 characters"
+    else .ok ()
+  | .wikidata, id =>
+    match id.toList with
+    | 'Q' :: rest@(_ :: _) =>
+      if rest.all Char.isDigit then .ok ()
+      else .error "Wikidata ids must consist of the letter Q followed by digits."
+    | _ => .error "Wikidata ids must start with the letter Q followed by one or more digits."
+  | .lmfdb, id =>
+    if !id.all fun c => c.isLower || c.isDigit || c == '.' || c == '_' then
+      .error "LMFDB ids must consist only of lowercase letters, digits, periods, and underscores."
+    else .ok ()
+  | .pibase _, id =>
+    match id.toList with
+    | kind :: rest =>
+      if kind != 'P' && kind != 'S' && kind != 'T' then
+        .error "π-Base ids must start with P, S, or T."
+      else if rest.length != 6 then
+        .error "π-Base ids must have exactly six digits after P/S/T."
+      else if !rest.all Char.isDigit then
+        .error "π-Base ids must consist of P, S, or T followed by six digits."
+      else .ok ()
+    | _ => .error "π-Base ids must consist of P, S, or T followed by six digits."
+  | .dlmf, id =>
+    if !id.all
+      (fun c => c ∈ ['i', 'v', 'x', 'l', 'c', 'd', 'm', 'E', 'F', 'T', '.', '_'] || c.isDigit) then
+      .error "DLMF references must consist only of (lowercase) roman numerals, the letters E/T/F, \
+         digits, periods, and underscores."
+    else .ok ()
+  | .oeis, id =>
+    if isOeisId id.toList then .ok ()
+    else .error "OEIS ids must be the letter A followed by exactly six digits, e.g. A123456."
+
 end Database
+
+-- Declare every database as a source that `@[cite]` can cite.
+run_cmd
+  for db in Database.all do
+    Cite.addSource db.source
 
 /-- A cross-reference from a Mathlib declaration to an entry in an external database. -/
 structure Tag where
@@ -148,21 +221,42 @@ def escapeFormatting (str : String) : String :=
   str.foldl (init := "") fun acc c =>
     -- Markdown allows escaping any ASCII punctuation character.
     -- Therefore, let's just escape everything and be sure it won't be misinterpreted.
-    if c.isAscii && !c.isAlphanum then acc.push '\\' |>.push c else acc.push c
+    -- Whitespace is the exception: in Markdown, a backslash before it is a literal backslash.
+    if c.isAscii && !c.isAlphanum && !c.isWhitespace then acc.push '\\' |>.push c
+    else acc.push c
 
-/-- Append a cross-reference link to the docstring of `decl` and record it in `tagExt`.
-This is the database-agnostic core of every cross-reference attribute's `add` handler.
+/-- Check the citation of `idStr` in `source`, append a link to it to the docstring of `decl`, and
+record it in `tagExt` (for a database) and as a citation.
+This is the database-agnostic core of `@[cite]` and every cross-reference attribute's `add` handler.
 
 TODO: due to the docstring extension being `.async .asyncEnv`, this can only add new docstrings
 and not replace them. We do not know a good alternative.
 See Zulip: https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/Cross-reference.20attributes.20don.27t.20change.20the.20docstring/with/631664323
 -/
-def addCrossRefDoc (db : Database) (decl : Name) (idStr comment : String) : CoreM Unit := do
+def citeEntry (source : Cite.CitedSource) (decl : Name) (idStr comment : String)
+    (srcRef idRef : Syntax := .missing) : CoreM Unit := do
+  let verso := doc.verso.get (← getOptions)
+  let (db?, link) ← match source with
+    | .source name => do
+      let s ← withRef srcRef <| Cite.findSource name
+      let db? := Database.ofSourceName? name
+      withRef idRef do
+        if let some db := db? then
+          if let .error msg := db.checkId idStr then throwError msg
+        if idStr.all Char.isWhitespace then throwError "The cited entry cannot be empty."
+      -- a database's label is not escaped, which keeps the links of its tags as they were
+      let title := if db?.isSome then s.title else escapeFormatting s.title
+      pure (db?, s!"[{title} {escapeFormatting idStr}]({Cite.entryUri s.uriTemplates idStr})")
+    | .bib key => do
+      withRef srcRef <| Cite.checkBibKey key
+      -- doc-gen4 links a `[key]` of the bibliography, so the key is not escaped; Verso's
+      -- `{cite}` role keeps the key in a string, and only the text it renders is escaped.
+      let cite := if verso then s!"\{cite \"{key}\"}[{escapeFormatting key}]" else s!"[{key}]"
+      pure (none, cite ++ if idStr.isEmpty then "" else s!", {escapeFormatting idStr}")
   let oldDoc := (← findDocString? (← getEnv) decl).getD ""
   let commentInDoc := if comment.isEmpty then "" else s!" ({comment})"
-  let link := s!"[{db.label} {escapeFormatting idStr}]({db.url idStr}){commentInDoc}"
-  let newDoc := "\n\n".intercalate ([oldDoc, link].filter (· != ""))
-  if doc.verso.get (← getOptions) then Meta.MetaM.run' <| Term.TermElabM.run' <| do
+  let newDoc := "\n\n".intercalate ([oldDoc, link ++ commentInDoc].filter (· != ""))
+  if verso then Meta.MetaM.run' <| Term.TermElabM.run' <| do
     -- Verso docstrings expect to be elaborated in the context of an existing declaration.
     -- Since these attributes are elaborated async, the declaration won't be in the environment yet,
     -- and so in that case we instead elaborate in the context of the current function.
@@ -171,7 +265,15 @@ def addCrossRefDoc (db : Database) (decl : Name) (idStr comment : String) : Core
     addVersoDocStringCore decl toVersoDocString deferredChecks
   else
     addDocStringCore decl newDoc
-  addTagEntry decl db idStr comment
+  if let some db := db? then addTagEntry decl db idStr comment
+  Cite.addCitation { declName := decl, source, id := idStr, comment }
+
+/-- `citeEntry` for an entry of the database `db`, which must be in `Database.all`. -/
+def addCrossRefDoc (db : Database) (decl : Name) (idStr comment : String) : CoreM Unit := do
+  unless Database.all.contains db do
+    throwError "The database `{db.shortName}` is not declared as a source of citations; \
+      add it to `Database.all`."
+  citeEntry (.source db.sourceName) decl idStr comment
 
 open Parser
 
@@ -191,14 +293,9 @@ def stacksTagFn : ParserFn := fun c s =>
   else if s.pos == i then
     ParserState.mkError s "stacks tag"
   else
-    let tag := c.extract i s.pos
-    if !tag.all fun (c : Char) => c.isDigit || c.isUpper then
-      ParserState.mkUnexpectedError s
-        "Stacks tags must consist only of digits and uppercase letters."
-    else if tag.length != 4 then
-      ParserState.mkUnexpectedError s "Stacks tags must be exactly 4 characters"
-    else
-      mkNodeToken stacksTagKind i true c s
+    match Database.checkId .stacks (c.extract i s.pos) with
+    | .ok () => mkNodeToken stacksTagKind i true c s
+    | .error msg => ParserState.mkUnexpectedError s msg
 
 @[inherit_doc stacksTagFn]
 def stacksTagNoAntiquot : Parser := {
@@ -224,17 +321,9 @@ def wikidataIdFn : ParserFn := fun c s =>
   else if s.pos == i then
     ParserState.mkError s "wikidata id"
   else
-    let id := c.extract i s.pos
-    match id.toList with
-    | 'Q' :: rest@(_ :: _) =>
-      if rest.all Char.isDigit then
-        mkNodeToken wikidataIdKind i true c s
-      else
-        ParserState.mkUnexpectedError s
-          "Wikidata ids must consist of the letter Q followed by digits."
-    | _ =>
-      ParserState.mkUnexpectedError s
-        "Wikidata ids must start with the letter Q followed by one or more digits."
+    match Database.checkId .wikidata (c.extract i s.pos) with
+    | .ok () => mkNodeToken wikidataIdKind i true c s
+    | .error msg => ParserState.mkUnexpectedError s msg
 
 @[inherit_doc wikidataIdFn]
 def wikidataIdNoAntiquot : Parser := {
@@ -262,12 +351,9 @@ def lmfdbIdFn : ParserFn := fun c s =>
   else if s.pos == i then
     ParserState.mkError s "lmfdb id"
   else
-    if !(c.extract i s.pos).toList.all
-      (fun c => c.isLower || c.isDigit || c == '.' || c == '_') then
-      ParserState.mkUnexpectedError s
-        "LMFDB ids must consist only of lowercase letters, digits, periods, and underscores."
-    else
-      mkNodeToken lmfdbIdKind i true c s
+    match Database.checkId .lmfdb (c.extract i s.pos) with
+    | .ok () => mkNodeToken lmfdbIdKind i true c s
+    | .error msg => ParserState.mkUnexpectedError s msg
 
 @[inherit_doc lmfdbIdFn]
 def lmfdbIdNoAntiquot : Parser := {
@@ -295,22 +381,10 @@ def pibaseIdFn : ParserFn := fun c s =>
   else if s.pos == i then
     ParserState.mkError s "π-Base id"
   else
-    let id := c.extract i s.pos
-    match id.toList with
-    | kind :: rest =>
-      if kind != 'P' && kind != 'S' && kind != 'T' then
-        ParserState.mkUnexpectedError s
-          "π-Base ids must start with P, S, or T."
-      else if rest.length != 6 then
-        ParserState.mkUnexpectedError s "π-Base ids must have exactly six digits after P/S/T."
-      else if !rest.all Char.isDigit then
-        ParserState.mkUnexpectedError s
-          "π-Base ids must consist of P, S, or T followed by six digits."
-      else
-        mkNodeToken pibaseIdKind i true c s
-    | _ =>
-      ParserState.mkUnexpectedError s
-        "π-Base ids must consist of P, S, or T followed by six digits."
+    -- All π-Base topics share one syntax of identifiers.
+    match Database.checkId (.pibase .topology) (c.extract i s.pos) with
+    | .ok () => mkNodeToken pibaseIdKind i true c s
+    | .error msg => ParserState.mkUnexpectedError s msg
 
 @[inherit_doc pibaseIdFn]
 def pibaseIdNoAntiquot : Parser := {
@@ -344,13 +418,9 @@ def dlmfIdFn : ParserFn := fun c s =>
   else if s.pos == i then
     ParserState.mkError s "dlmf id"
   else
-    if !(c.extract i s.pos).toList.all
-      (fun c => c ∈ ['i', 'v', 'x', 'l', 'c', 'd', 'm', 'E', 'F', 'T', '.', '_'] || c.isDigit) then
-      ParserState.mkUnexpectedError s
-        "DLMF references must consist only of (lowercase) roman numerals, the letters E/T/F, \
-         digits, periods, and underscores."
-    else
-      mkNodeToken dlmfIdKind i true c s
+    match Database.checkId .dlmf (c.extract i s.pos) with
+    | .ok () => mkNodeToken dlmfIdKind i true c s
+    | .error msg => ParserState.mkUnexpectedError s msg
 
 @[inherit_doc dlmfIdFn]
 def dlmfIdNoAntiquot : Parser := {
@@ -367,12 +437,6 @@ def dlmfIdParser : Parser :=
 /-- `oeisId` is the node kind of OEIS identifiers: the letter `A` followed by six digits. -/
 abbrev oeisIdKind : SyntaxNodeKind := `oeisId
 
-/-- `isOeisId` checks whether a string is an OEIS identifier. -/
-private def isOeisId (id : List Char) : Bool :=
-  match id with
-  | 'A' :: rest => rest.length == 6 && rest.all Char.isDigit
-  | _ => false
-
 /-- The main parser for OEIS identifiers: it accepts `A` followed by six digits. -/
 def oeisIdFn : ParserFn := fun c s =>
   let i := s.pos
@@ -381,11 +445,10 @@ def oeisIdFn : ParserFn := fun c s =>
     s
   else if s.pos == i then
     ParserState.mkError s "oeis id"
-  else if isOeisId (c.extract i s.pos).toList then
-    mkNodeToken oeisIdKind i true c s
   else
-    ParserState.mkUnexpectedError s
-      "OEIS ids must be the letter A followed by exactly six digits, e.g. A123456."
+    match Database.checkId .oeis (c.extract i s.pos) with
+    | .ok () => mkNodeToken oeisIdKind i true c s
+    | .error msg => ParserState.mkUnexpectedError s msg
 
 @[inherit_doc oeisIdFn]
 def oeisIdNoAntiquot : Parser := {
@@ -766,5 +829,29 @@ or declaration type (for definitions, structures, instances, etc.) after each su
 -/
 elab (name := oeisTags) "#oeis_tags" tk:("!")? : command =>
   traceCrossRefs .oeis (tk.isSome)
+
+/-! ### The `cite` attribute -/
+
+/-- `@[cite src "id" "comment"?]` or `@[cite "bibKey" "locator"? "comment"?]` cites a source. -/
+syntax (name := citeAttr) &"cite" ppSpace
+  -- `rawIdent` reads a keyword such as `stacks` as a name
+  (Lean.Parser.rawIdent <|> str) (ppSpace str (ppSpace str)?)? : attr
+
+initialize Lean.registerBuiltinAttribute {
+  name := `citeAttr
+  descr := "Cite a database, a source declared with `cite_source`, or an entry of the BibTeX file."
+  add decl stx attrKind := do
+    unless attrKind == .global do throwAttrMustBeGlobal `cite attrKind
+    let str (s? : Option (TSyntax `str)) := (s?.map (·.getString)).getD ""
+    let (source, src, id, comment) ← match stx with
+      | `(attr| cite $src:ident $[$id $[$comment]?]?) =>
+        pure (.source src.getId.eraseMacroScopes, src.raw, id, comment.join)
+      | `(attr| cite $key:str $[$locator $[$comment]?]?) =>
+        pure (.bib key.getString, key.raw, locator, comment.join)
+      | _ => throwUnsupportedSyntax
+    citeEntry source decl (str id) (str comment) src ((id.map (·.raw)).getD src)
+  -- docstrings are immutable once an asynchronous elaboration task has been started
+  applicationTime := .beforeElaboration
+}
 
 end Mathlib.CrossRef
